@@ -222,10 +222,10 @@ pipeline {
             
             if [ "$ok" -eq 1 ]; then
               echo "🔄 Running Prisma migrations..."
-              # Use the Prisma version from node_modules (installed via package.json)
+              # Use npx to run Prisma (it will use the version from node_modules)
               # Try migrate deploy first, fallback to db push if no migrations exist
-              docker-compose -f ${DOCKER_COMPOSE_FILE} run --rm app sh -c "node_modules/.bin/prisma migrate deploy" || \
-              docker-compose -f ${DOCKER_COMPOSE_FILE} run --rm app sh -c "node_modules/.bin/prisma db push"
+              docker-compose -f ${DOCKER_COMPOSE_FILE} run --rm app sh -c "npx prisma migrate deploy" || \
+              docker-compose -f ${DOCKER_COMPOSE_FILE} run --rm app sh -c "npx prisma db push"
               echo "✅ Migrations complete"
             else
               echo "❌ Database not ready for migrations"
