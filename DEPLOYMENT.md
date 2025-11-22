@@ -94,8 +94,8 @@ docker-compose -f docker-compose.prod.yml up -d minio
 
 # Wait for MinIO to be ready, then create bucket
 docker exec warranty_minio mc alias set local http://localhost:9000 minioadmin YOUR_PASSWORD
-docker exec warranty_minio mc mb local/warranty-files
-docker exec warranty_minio mc anonymous set download local/warranty-files
+docker exec warranty_minio mc mb local/warranty-docs
+docker exec warranty_minio mc anonymous set download local/warranty-docs
 ```
 
 Alternatively, the Jenkins pipeline will attempt to create the bucket automatically.

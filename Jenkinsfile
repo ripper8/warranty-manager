@@ -145,7 +145,7 @@ pipeline {
               # Configure MinIO client and create bucket
               MINIO_USER="${MINIO_ROOT_USER:-minioadmin}"
               MINIO_PASS="${MINIO_ROOT_PASSWORD:-minioadmin}"
-              BUCKET_NAME="${S3_BUCKET:-warranty-files}"
+              BUCKET_NAME="${S3_BUCKET:-warranty-docs}"
               
               docker exec warranty_minio mc alias set local http://localhost:9000 "$MINIO_USER" "$MINIO_PASS" || true
               docker exec warranty_minio mc mb local/"$BUCKET_NAME" --ignore-existing || true
