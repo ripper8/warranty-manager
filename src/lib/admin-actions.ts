@@ -3,11 +3,13 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 
+import { redirect } from 'next/navigation'
+
 export async function getGlobalStats() {
     const session = await auth()
 
     if (!session?.user?.id) {
-        throw new Error('Unauthorized')
+        redirect('/login')
     }
 
     try {
@@ -20,7 +22,7 @@ export async function getGlobalStats() {
         })
 
         if (!isGlobalAdmin) {
-            throw new Error('Only Global Admins can access this')
+            redirect('/dashboard')
         }
 
         // Get global statistics
@@ -56,6 +58,10 @@ export async function getGlobalStats() {
             newWarrantiesLast30Days
         }
     } catch (error) {
+        // Re-throw redirect errors (NEXT_REDIRECT)
+        if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+            throw error
+        }
         console.error('Get global stats error:', error)
         throw new Error('Failed to fetch global statistics')
     }
@@ -65,7 +71,7 @@ export async function getAllUsers() {
     const session = await auth()
 
     if (!session?.user?.id) {
-        throw new Error('Unauthorized')
+        redirect('/login')
     }
 
     try {
@@ -78,7 +84,7 @@ export async function getAllUsers() {
         })
 
         if (!isGlobalAdmin) {
-            throw new Error('Only Global Admins can access this')
+            redirect('/dashboard')
         }
 
         // Get all users with their account memberships
@@ -115,6 +121,10 @@ export async function getAllUsers() {
             accounts: user.accounts.map(a => a.account.name)
         }))
     } catch (error) {
+        // Re-throw redirect errors (NEXT_REDIRECT)
+        if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+            throw error
+        }
         console.error('Get all users error:', error)
         throw new Error('Failed to fetch users')
     }
@@ -124,7 +134,7 @@ export async function getAllAccounts() {
     const session = await auth()
 
     if (!session?.user?.id) {
-        throw new Error('Unauthorized')
+        redirect('/login')
     }
 
     try {
@@ -137,7 +147,7 @@ export async function getAllAccounts() {
         })
 
         if (!isGlobalAdmin) {
-            throw new Error('Only Global Admins can access this')
+            redirect('/dashboard')
         }
 
         // Get all accounts with statistics
@@ -177,6 +187,10 @@ export async function getAllAccounts() {
             }))
         }))
     } catch (error) {
+        // Re-throw redirect errors (NEXT_REDIRECT)
+        if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+            throw error
+        }
         console.error('Get all accounts error:', error)
         throw new Error('Failed to fetch accounts')
     }

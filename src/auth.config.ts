@@ -21,15 +21,17 @@ export const authConfig = {
     callbacks: {
         authorized({ auth, request: { nextUrl } }) {
             const isLoggedIn = !!auth?.user
-            const isOnDashboard = nextUrl.pathname.startsWith('/dashboard')
-            const isOnAuthPages = nextUrl.pathname.startsWith('/login') || nextUrl.pathname.startsWith('/register')
+            const isOnAuthPage = nextUrl.pathname.startsWith('/login') || nextUrl.pathname.startsWith('/register')
 
-            if (isOnDashboard) {
-                if (isLoggedIn) return true
-                return false // Redirect unauthenticated users to login page
-            } else if (isLoggedIn && isOnAuthPages) {
-                return Response.redirect(new URL('/dashboard', nextUrl))
+            if (isOnAuthPage) {
+                if (isLoggedIn) return Response.redirect(new URL('/dashboard', nextUrl))
+                return true
             }
+
+            if (!isLoggedIn) {
+                return false
+            }
+
             return true
         },
         async redirect({ url, baseUrl }) {
@@ -52,7 +54,7 @@ export const authConfig = {
             } catch {
                 // Invalid URL, fall through to default
             }
-            
+
             // If url is a relative path, prepend baseUrl
             if (url.startsWith('/')) {
                 return `${baseUrl}${url}`
