@@ -121,9 +121,9 @@ pipeline {
           sh '''
             set -eu
             echo "🪣 Starting MinIO temporarily to create bucket..."
-            # Source environment variables
+            # Source environment variables (using . instead of source for sh compatibility)
             set -a
-            [ -f .env ] && source .env
+            [ -f .env ] && . .env
             set +a
             
             docker-compose -f ${DOCKER_COMPOSE_FILE} up -d minio
@@ -196,9 +196,9 @@ pipeline {
           dir("${env.PROJECT_DIR}") {
           sh '''
             set -eu
-            # Source environment variables
+            # Source environment variables (using . instead of source for sh compatibility)
             set -a
-            [ -f .env ] && source .env
+            [ -f .env ] && . .env
             set +a
             
             echo "🗄️ Starting database for migrations..."
