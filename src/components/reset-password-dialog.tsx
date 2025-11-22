@@ -20,9 +20,10 @@ import { useRouter } from 'next/navigation'
 interface ResetPasswordDialogProps {
     userId: string
     userName: string
+    className?: string
 }
 
-export function ResetPasswordDialog({ userId, userName }: ResetPasswordDialogProps) {
+export function ResetPasswordDialog({ userId, userName, className }: ResetPasswordDialogProps) {
     const [open, setOpen] = useState(false)
     const [newPassword, setNewPassword] = useState('')
     const [isPending, startTransition] = useTransition()
@@ -56,7 +57,7 @@ export function ResetPasswordDialog({ userId, userName }: ResetPasswordDialogPro
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className={className}>
                     <Key className="mr-2 h-4 w-4" />
                     Reset Password
                 </Button>

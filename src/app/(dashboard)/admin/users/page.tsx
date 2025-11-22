@@ -31,24 +31,24 @@ export default async function AdminUsersPage() {
                 <CardContent>
                     <div className="space-y-4">
                         {users.map((user) => (
-                            <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
-                                <div className="space-y-1">
+                            <div key={user.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg gap-4">
+                                <div className="space-y-1 w-full">
                                     <div className="flex items-center gap-2">
                                         <p className="font-medium">{user.name || 'No name'}</p>
                                         {!user.hasPassword && (
                                             <Badge variant="secondary">OAuth</Badge>
                                         )}
                                     </div>
-                                    <p className="text-sm text-muted-foreground">{user.email}</p>
-                                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                                    <p className="text-sm text-muted-foreground break-all">{user.email}</p>
+                                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                                         <span>{user.accountsCount} account(s)</span>
-                                        <span>•</span>
+                                        <span className="hidden xs:inline">•</span>
                                         <span>{user.warrantiesCount} warranty(ies)</span>
-                                        <span>•</span>
+                                        <span className="hidden xs:inline">•</span>
                                         <span>Joined {new Date(user.createdAt).toLocaleDateString()}</span>
                                     </div>
                                     {user.accounts.length > 0 && (
-                                        <div className="flex gap-1 mt-2">
+                                        <div className="flex flex-wrap gap-1 mt-2">
                                             {user.accounts.map((accountName, idx) => (
                                                 <Badge key={idx} variant="outline" className="text-xs">
                                                     {accountName}
@@ -57,12 +57,15 @@ export default async function AdminUsersPage() {
                                         </div>
                                     )}
                                 </div>
-                                <div>
+                                <div className="w-full md:w-auto">
                                     {user.hasPassword && (
-                                        <ResetPasswordDialog
-                                            userId={user.id}
-                                            userName={user.name || user.email}
-                                        />
+                                        <div className="w-full md:w-auto">
+                                            <ResetPasswordDialog
+                                                userId={user.id}
+                                                userName={user.name || user.email}
+                                                className="w-full md:w-auto"
+                                            />
+                                        </div>
                                     )}
                                 </div>
                             </div>
