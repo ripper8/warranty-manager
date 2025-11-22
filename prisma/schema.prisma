@@ -1,0 +1,127 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String?   // Hashed password
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      AccountUser[]
+  createdWarranties WarrantyItem[]
+  
+  // For NextAuth
+  accountsOAuth Account[]
+  sessions      Session[]
+}
+
+model Account {
+  id          String   @id @default(cuid())
+  name        String
+  ownerId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users       AccountUser[]
+  warranties  WarrantyItem[]
+  
+  // For NextAuth (OAuth accounts linked to User)
+  userId             String?
+  type               String?
+  provider           String?
+  providerAccountId  String?
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+enum Role {
+  GLOBAL_ADMIN
+  ACCOUNT_ADMIN
+  USER
+}
+
+model AccountUser {
+  id        String   @id @default(cuid())
+  accountId String
+  userId    String
+  role      Role     @default(USER)
+  
+  account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([accountId, userId])
+}
+
+model WarrantyItem {
+  id              String    @id @default(cuid())
+  accountId       String
+  createdByUserId String
+  
+  title           String
+  category        String?
+  brand           String?
+  model           String?
+  
+  purchaseDate    DateTime?
+  warrantyPeriod  Int?      // In months
+  expiryDate      DateTime?
+  
+  price           Decimal?
+  currency        String    @default("BGN")
+  merchantName    String?
+  
+  status          String    @default("ACTIVE") // ACTIVE, EXPIRED, ARCHIVED
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  account         Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  createdBy       User      @relation(fields: [createdByUserId], references: [id])
+  
+  documents       Document[]
+}
+
+model Document {
+  id             String   @id @default(cuid())
+  warrantyItemId String
+  type           String   // RECEIPT, WARRANTY_CARD, PRODUCT_PHOTO
+  url            String   // Local path or URL
+  createdAt      DateTime @default(now())
+
+  warrantyItem   WarrantyItem @relation(fields: [warrantyItemId], references: [id], onDelete: Cascade)
+}
