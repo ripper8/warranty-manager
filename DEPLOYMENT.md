@@ -174,11 +174,11 @@ docker exec warranty_minio mc ls local/
 
 ### Port conflicts
 
-If port 3093 is already in use, update `docker-compose.prod.yml`:
+If port 3092 is already in use, update `docker-compose.prod.yml`:
 
 ```yaml
 ports:
-  - "3094:3000"  # Change 3093 to 3094
+  - "3093:3000"  # Change 3092 to 3093
 ```
 
 And update the corresponding environment variables and nginx configuration.

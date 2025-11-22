@@ -89,11 +89,11 @@ docker-compose -f docker-compose.prod.yml down
 
 ### Health Check
 ```bash
-curl http://192.168.0.243:3093/api/health
+curl http://192.168.0.243:3092/api/health
 ```
 
 ### Access Points
-- **Application**: http://192.168.0.243:3093 (or https://warranty.acyapps.com via nginx)
+- **Application**: http://192.168.0.243:3092 (or https://warranty.acyapps.com via nginx)
 - **MinIO Console**: http://192.168.0.243:9001 (if exposed)
 
 ## 🔐 Security Checklist
@@ -107,7 +107,7 @@ curl http://192.168.0.243:3093/api/health
 
 ## 📝 Notes
 
-- The application runs on port **3093** internally (mapped from container port 3000)
+- The application runs on port **3092** internally (mapped from container port 3000)
 - Database runs on internal Docker network (not exposed externally)
 - MinIO runs on internal Docker network (port 9000 for API, 9001 for console)
 - Health checks verify both application and database connectivity

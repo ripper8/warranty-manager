@@ -15,8 +15,8 @@ pipeline {
     PROJECT_DIR = "${env.WORKSPACE}"
     DOCKER_COMPOSE_FILE = "docker-compose.prod.yml" // will be overridden in Initialize
     ENV = "prod"                                 // will be overridden in Initialize
-    FRONTEND_URL = "http://192.168.0.243:3093"  // default for prod; overridden in stages
-    BACKEND_URL  = "http://192.168.0.243:3093"
+    FRONTEND_URL = "http://192.168.0.243:3092"  // default for prod; overridden in stages
+    BACKEND_URL  = "http://192.168.0.243:3092"
     COMPOSE_DOCKER_CLI_BUILD = "1"
     DOCKER_BUILDKIT = "1"
     COMPOSE_PROJECT_NAME = "warranty"
@@ -243,8 +243,8 @@ pipeline {
         withEnv([
           "ENV=${env.EFFECTIVE_ENV}",
           "DOCKER_COMPOSE_FILE=${env.COMPOSE_FILE}",
-          "FRONTEND_URL=http://192.168.0.243:3093",
-          "BACKEND_URL=http://192.168.0.243:3093"
+          "FRONTEND_URL=http://192.168.0.243:3092",
+          "BACKEND_URL=http://192.168.0.243:3092"
         ]) {
           dir("${env.PROJECT_DIR}") {
           sh '''
@@ -275,8 +275,8 @@ pipeline {
         withEnv([
           "ENV=${env.EFFECTIVE_ENV}",
           "DOCKER_COMPOSE_FILE=${env.COMPOSE_FILE}",
-          "FRONTEND_URL=http://192.168.0.243:3093",
-          "BACKEND_URL=http://192.168.0.243:3093"
+          "FRONTEND_URL=http://192.168.0.243:3092",
+          "BACKEND_URL=http://192.168.0.243:3092"
         ]) {
           dir("${env.PROJECT_DIR}") {
           sh '''
