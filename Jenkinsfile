@@ -121,10 +121,13 @@ pipeline {
           sh '''
             set -eu
             echo "🪣 Starting MinIO temporarily to create bucket..."
-            # Source environment variables (using . instead of source for sh compatibility)
-            set -a
-            [ -f .env ] && . .env
-            set +a
+            
+            # Load environment variables from .env file
+            if [ -f .env ]; then
+              export $(grep -v '^#' .env | xargs)
+            else
+              echo "⚠️ .env file not found, using defaults"
+            fi
             
             docker-compose -f ${DOCKER_COMPOSE_FILE} up -d minio
             sleep 10
@@ -141,7 +144,7 @@ pipeline {
             if [ "$ok" -eq 1 ]; then
               # Configure MinIO client and create bucket
               MINIO_USER="${MINIO_ROOT_USER:-minioadmin}"
-              MINIO_PASS="${MINIO_ROOT_PASSWORD}"
+              MINIO_PASS="${MINIO_ROOT_PASSWORD:-minioadmin}"
               BUCKET_NAME="${S3_BUCKET:-warranty-files}"
               
               docker exec warranty_minio mc alias set local http://localhost:9000 "$MINIO_USER" "$MINIO_PASS" || true
@@ -196,10 +199,13 @@ pipeline {
           dir("${env.PROJECT_DIR}") {
           sh '''
             set -eu
-            # Source environment variables (using . instead of source for sh compatibility)
-            set -a
-            [ -f .env ] && . .env
-            set +a
+            
+            # Load environment variables from .env file
+            if [ -f .env ]; then
+              export $(grep -v '^#' .env | xargs)
+            else
+              echo "⚠️ .env file not found, using defaults"
+            fi
             
             echo "🗄️ Starting database for migrations..."
             docker-compose -f ${DOCKER_COMPOSE_FILE} up -d postgres
