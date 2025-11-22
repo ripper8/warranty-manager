@@ -14,6 +14,9 @@ const RegisterSchema = z.object({
 
 export async function authenticate(prevState: string | undefined, formData: FormData) {
     try {
+        // signIn will automatically redirect after successful authentication
+        // The redirect URL is handled by NextAuth's redirect callback
+        // which will use the callbackUrl from the URL query params if present
         await signIn('credentials', formData)
     } catch (error) {
         if (error instanceof AuthError) {

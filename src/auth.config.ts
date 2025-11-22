@@ -26,13 +26,46 @@ export const authConfig = {
             if (isOnDashboard) {
                 if (isLoggedIn) return true
                 return false // Redirect unauthenticated users to login page
-            } else if (isLoggedIn) {
-                // Redirect logged in users to dashboard if they are on login page
-                if (nextUrl.pathname === '/login' || nextUrl.pathname === '/register') {
-                    return Response.redirect(new URL('/dashboard', nextUrl))
-                }
             }
+            // Don't redirect logged-in users from login/register pages here
+            // Let NextAuth's redirect callback handle it to avoid double redirects
             return true
+        },
+        async redirect({ url, baseUrl }) {
+            // Handle redirect after login
+            // Check if url contains callbackUrl parameter
+            try {
+                const urlObj = new URL(url, baseUrl)
+                const callbackUrl = urlObj.searchParams.get('callbackUrl')
+                if (callbackUrl) {
+                    // If callbackUrl is relative, prepend baseUrl
+                    if (callbackUrl.startsWith('/')) {
+                        return `${baseUrl}${callbackUrl}`
+                    }
+                    // If callbackUrl is absolute and from same origin, use it
+                    const callbackUrlObj = new URL(callbackUrl, baseUrl)
+                    if (callbackUrlObj.origin === baseUrl) {
+                        return callbackUrl
+                    }
+                }
+            } catch {
+                // Invalid URL, fall through to default
+            }
+            
+            // If url is a relative path, prepend baseUrl
+            if (url.startsWith('/')) {
+                return `${baseUrl}${url}`
+            }
+            // If url is from the same origin, allow it
+            try {
+                if (new URL(url, baseUrl).origin === baseUrl) {
+                    return url
+                }
+            } catch {
+                // Invalid URL, fall through to default
+            }
+            // Default to dashboard
+            return `${baseUrl}/dashboard`
         },
         async session({ session, user, token }) {
             if (session.user && token.sub) {
