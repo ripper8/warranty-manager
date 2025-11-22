@@ -37,7 +37,7 @@ export async function createWarranty(data: z.infer<typeof WarrantySchema>) {
         const userAccount = await prisma.accountUser.findFirst({
             where: {
                 userId: session.user.id,
-                role: { in: ['ACCOUNT_ADMIN', 'USER'] }
+                role: { in: ['GLOBAL_ADMIN', 'ACCOUNT_ADMIN', 'USER'] }
             }
         })
 
@@ -122,7 +122,10 @@ export async function getWarranties() {
             }
         })
 
-        return warranties
+        return warranties.map(warranty => ({
+            ...warranty,
+            price: warranty.price ? Number(warranty.price) : null
+        }))
     } catch (error) {
         console.error('Get warranties error:', error)
         throw new Error('Failed to fetch warranties')
@@ -175,7 +178,10 @@ export async function getWarrantyById(id: string) {
             throw new Error('Warranty not found or access denied')
         }
 
-        return warranty
+        return {
+            ...warranty,
+            price: warranty.price ? Number(warranty.price) : null
+        }
     } catch (error) {
         console.error('Get warranty by ID error:', error)
         throw new Error('Failed to fetch warranty')

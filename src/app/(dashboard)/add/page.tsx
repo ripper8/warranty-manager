@@ -15,7 +15,7 @@ type DocumentType = 'RECEIPT' | 'WARRANTY_CARD' | 'PRODUCT_PHOTO'
 interface UploadedFile {
     filename: string
     originalName: string
-    path: string
+    key: string
     size: number
     type: string
     documentType: DocumentType
@@ -98,7 +98,7 @@ export default function AddWarrantyPage() {
                 merchantName: formData.merchantName || undefined,
                 documents: uploadedFiles.map(f => ({
                     type: f.documentType,
-                    url: f.path
+                    url: f.key
                 }))
             })
 
