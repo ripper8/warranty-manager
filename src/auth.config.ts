@@ -22,13 +22,14 @@ export const authConfig = {
         authorized({ auth, request: { nextUrl } }) {
             const isLoggedIn = !!auth?.user
             const isOnDashboard = nextUrl.pathname.startsWith('/dashboard')
+            const isOnAuthPages = nextUrl.pathname.startsWith('/login') || nextUrl.pathname.startsWith('/register')
 
             if (isOnDashboard) {
                 if (isLoggedIn) return true
                 return false // Redirect unauthenticated users to login page
+            } else if (isLoggedIn && isOnAuthPages) {
+                return Response.redirect(new URL('/dashboard', nextUrl))
             }
-            // Don't redirect logged-in users from login/register pages here
-            // Let NextAuth's redirect callback handle it to avoid double redirects
             return true
         },
         async redirect({ url, baseUrl }) {
