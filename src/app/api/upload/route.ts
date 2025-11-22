@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
         const uploadedFiles = [] as Array<{
             filename: string | undefined;
             originalName: string;
-            path: string;
+            key: string;
             size: number;
             type: string;
         }>;
