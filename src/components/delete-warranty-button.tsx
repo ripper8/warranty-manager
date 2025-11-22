@@ -20,9 +20,10 @@ import { Trash2, Loader2 } from 'lucide-react'
 interface DeleteWarrantyButtonProps {
     warrantyId: string
     warrantyTitle: string
+    className?: string
 }
 
-export function DeleteWarrantyButton({ warrantyId, warrantyTitle }: DeleteWarrantyButtonProps) {
+export function DeleteWarrantyButton({ warrantyId, warrantyTitle, className }: DeleteWarrantyButtonProps) {
     const [open, setOpen] = useState(false)
     const [isPending, startTransition] = useTransition()
     const router = useRouter()
@@ -44,7 +45,7 @@ export function DeleteWarrantyButton({ warrantyId, warrantyTitle }: DeleteWarran
     return (
         <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger asChild>
-                <Button variant="destructive">
+                <Button variant="destructive" className={className}>
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete
                 </Button>

@@ -90,23 +90,23 @@ export default async function DashboardPage() {
                                     href={`/warranties/${warranty.id}`}
                                     className="block"
                                 >
-                                    <div className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+                                    <div className="flex flex-col md:flex-row md:items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors gap-4">
                                         <div className="space-y-1">
                                             <p className="font-medium">{warranty.title}</p>
-                                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                                                 {warranty.brand && <span>{warranty.brand}</span>}
                                                 {warranty.category && (
                                                     <>
-                                                        <span>•</span>
+                                                        <span className="hidden xs:inline">•</span>
                                                         <span>{warranty.category}</span>
                                                     </>
                                                 )}
-                                                <span>•</span>
+                                                <span className="hidden xs:inline">•</span>
                                                 <span>{warranty.documentsCount} doc(s)</span>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-4">
-                                            <div className="text-right text-sm text-muted-foreground">
+                                        <div className="flex items-center justify-between md:justify-end gap-4 w-full md:w-auto">
+                                            <div className="text-sm text-muted-foreground">
                                                 <div className="flex items-center gap-1">
                                                     <Calendar className="h-3 w-3" />
                                                     {new Date(warranty.createdAt).toLocaleDateString()}
@@ -123,26 +123,28 @@ export default async function DashboardPage() {
             </Card>
 
             {/* Category Breakdown */}
-            {Object.keys(stats.categoryBreakdown).length > 0 && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle>By Category</CardTitle>
-                        <CardDescription>Warranties grouped by category</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-2">
-                            {Object.entries(stats.categoryBreakdown)
-                                .sort(([, a], [, b]) => b - a)
-                                .map(([category, count]) => (
-                                    <div key={category} className="flex items-center justify-between">
-                                        <span className="text-sm font-medium">{category}</span>
-                                        <Badge variant="outline">{count}</Badge>
-                                    </div>
-                                ))}
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
-        </div>
+            {
+                Object.keys(stats.categoryBreakdown).length > 0 && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>By Category</CardTitle>
+                            <CardDescription>Warranties grouped by category</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-2">
+                                {Object.entries(stats.categoryBreakdown)
+                                    .sort(([, a], [, b]) => b - a)
+                                    .map(([category, count]) => (
+                                        <div key={category} className="flex items-center justify-between">
+                                            <span className="text-sm font-medium">{category}</span>
+                                            <Badge variant="outline">{count}</Badge>
+                                        </div>
+                                    ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                )
+            }
+        </div >
     )
 }

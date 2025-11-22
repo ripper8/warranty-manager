@@ -89,13 +89,13 @@ export default function WarrantiesList({ warranties }: WarrantiesListProps) {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">My Warranties</h2>
                     <p className="text-muted-foreground">Manage all your warranty cards</p>
                 </div>
-                <Link href="/add">
-                    <Button>
+                <Link href="/add" className="w-full md:w-auto">
+                    <Button className="w-full md:w-auto">
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Add Warranty
                     </Button>

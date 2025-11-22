@@ -1,0 +1,101 @@
+'use client'
+
+import { useState } from 'react'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import {
+    LayoutDashboard,
+    PlusCircle,
+    FileText,
+    Settings,
+    LogOut,
+    Shield,
+    User,
+    Menu,
+    X
+} from 'lucide-react'
+
+interface MobileNavProps {
+    user: {
+        name?: string | null
+        email?: string | null
+        image?: string | null
+    } | undefined
+    isGlobalAdmin: boolean
+    onSignOut: () => Promise<void>
+}
+
+export function MobileNav({ user, isGlobalAdmin, onSignOut }: MobileNavProps) {
+    const [isOpen, setIsOpen] = useState(false)
+
+    const toggleMenu = () => setIsOpen(!isOpen)
+
+    return (
+        <div className="md:hidden border-b bg-background sticky top-0 z-50">
+            <div className="flex items-center justify-between p-4">
+                <div className="flex items-center gap-2">
+                    <h1 className="text-lg font-bold tracking-tight">Warranty Manager</h1>
+                </div>
+                <Button variant="ghost" size="icon" onClick={toggleMenu}>
+                    {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                </Button>
+            </div>
+
+            {isOpen && (
+                <div className="absolute top-full left-0 right-0 bg-background border-b shadow-lg p-4 space-y-4 animate-in slide-in-from-top-5">
+                    <div className="flex flex-col space-y-2">
+                        <div className="px-2 py-1.5 text-sm font-medium text-muted-foreground">
+                            Signed in as {user?.name}
+                        </div>
+                        <Link href="/dashboard" onClick={() => setIsOpen(false)}>
+                            <Button variant="ghost" className="w-full justify-start gap-2">
+                                <LayoutDashboard className="h-4 w-4" />
+                                Dashboard
+                            </Button>
+                        </Link>
+                        <Link href="/add" onClick={() => setIsOpen(false)}>
+                            <Button variant="ghost" className="w-full justify-start gap-2">
+                                <PlusCircle className="h-4 w-4" />
+                                Add Warranty
+                            </Button>
+                        </Link>
+                        <Link href="/warranties" onClick={() => setIsOpen(false)}>
+                            <Button variant="ghost" className="w-full justify-start gap-2">
+                                <FileText className="h-4 w-4" />
+                                My Warranties
+                            </Button>
+                        </Link>
+                        <Link href="/settings" onClick={() => setIsOpen(false)}>
+                            <Button variant="ghost" className="w-full justify-start gap-2">
+                                <Settings className="h-4 w-4" />
+                                Settings
+                            </Button>
+                        </Link>
+                        <Link href="/account/members" onClick={() => setIsOpen(false)}>
+                            <Button variant="ghost" className="w-full justify-start gap-2">
+                                <User className="h-4 w-4" />
+                                Account Members
+                            </Button>
+                        </Link>
+                        {isGlobalAdmin && (
+                            <Link href="/admin" onClick={() => setIsOpen(false)}>
+                                <Button variant="ghost" className="w-full justify-start gap-2">
+                                    <Shield className="h-4 w-4" />
+                                    Admin Panel
+                                </Button>
+                            </Link>
+                        )}
+                        <div className="pt-2 border-t">
+                            <form action={onSignOut}>
+                                <Button variant="outline" className="w-full gap-2">
+                                    <LogOut className="h-4 w-4" />
+                                    Sign Out
+                                </Button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    )
+}

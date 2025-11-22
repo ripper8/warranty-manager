@@ -2,6 +2,7 @@ import { auth, signOut } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { MobileNav } from "@/components/mobile-nav"
 import {
     LayoutDashboard,
     PlusCircle,
@@ -31,9 +32,20 @@ export default async function DashboardLayout({
         isGlobalAdmin = !!adminRole
     }
 
+    async function handleSignOut() {
+        'use server';
+        await signOut();
+    }
+
     return (
         <div className="flex min-h-screen w-full flex-col md:flex-row">
-            <aside className="w-full md:w-64 bg-muted/40 border-r min-h-screen flex flex-col">
+            <MobileNav
+                user={session?.user}
+                isGlobalAdmin={isGlobalAdmin}
+                onSignOut={handleSignOut}
+            />
+
+            <aside className="hidden md:flex w-64 bg-muted/40 border-r min-h-screen flex-col">
                 <div className="p-6 border-b">
                     <h1 className="text-xl font-bold tracking-tight">Warranty Manager</h1>
                     <p className="text-sm text-muted-foreground mt-1">{session?.user?.name}</p>
@@ -79,10 +91,7 @@ export default async function DashboardLayout({
                     )}
                 </nav>
                 <div className="p-4 border-t">
-                    <form action={async () => {
-                        'use server';
-                        await signOut();
-                    }}>
+                    <form action={handleSignOut}>
                         <Button variant="outline" className="w-full gap-2">
                             <LogOut className="h-4 w-4" />
                             Sign Out
@@ -90,7 +99,7 @@ export default async function DashboardLayout({
                     </form>
                 </div>
             </aside>
-            <main className="flex-1 p-6 md:p-8">
+            <main className="flex-1 p-4 md:p-8 overflow-y-auto">
                 {children}
             </main>
         </div>

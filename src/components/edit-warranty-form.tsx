@@ -448,7 +448,7 @@ export default function EditWarrantyForm({ warranty }: EditWarrantyFormProps) {
                 )}
 
                 <div className="flex gap-4">
-                    <Button type="submit" disabled={isPending || uploading}>
+                    <Button type="submit" disabled={isPending || uploading} className="flex-1">
                         {isPending ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -458,8 +458,8 @@ export default function EditWarrantyForm({ warranty }: EditWarrantyFormProps) {
                             'Save Changes'
                         )}
                     </Button>
-                    <Link href={`/warranties/${warranty.id}`}>
-                        <Button type="button" variant="outline" disabled={isPending}>
+                    <Link href={`/warranties/${warranty.id}`} className="flex-1">
+                        <Button type="button" variant="outline" disabled={isPending} className="w-full">
                             Cancel
                         </Button>
                     </Link>

@@ -331,10 +331,10 @@ export default function AddWarrantyPage() {
                 )}
 
                 <div className="flex gap-4">
-                    <Button type="submit" disabled={loading || uploading}>
+                    <Button type="submit" disabled={loading || uploading} className="flex-1">
                         {loading ? 'Creating...' : 'Create Warranty'}
                     </Button>
-                    <Button type="button" variant="outline" onClick={() => router.back()}>
+                    <Button type="button" variant="outline" onClick={() => router.back()} className="flex-1">
                         Cancel
                     </Button>
                 </div>
