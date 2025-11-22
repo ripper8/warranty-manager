@@ -15,7 +15,7 @@ const WarrantySchema = z.object({
     purchaseDate: z.string().optional(),
     warrantyPeriod: z.number().min(1, 'Warranty period must be at least 1 month'),
     price: z.number().optional(),
-    currency: z.string().default('BGN'),
+    currency: z.string().default('EUR'),
     merchantName: z.string().optional(),
     documents: z.array(z.object({
         type: z.enum(['RECEIPT', 'WARRANTY_CARD', 'PRODUCT_PHOTO']),

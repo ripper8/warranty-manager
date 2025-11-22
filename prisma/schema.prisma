@@ -102,7 +102,7 @@ model WarrantyItem {
   expiryDate      DateTime?
   
   price           Decimal?
-  currency        String    @default("BGN")
+  currency        String    @default("EUR")
   merchantName    String?
   
   status          String    @default("ACTIVE") // ACTIVE, EXPIRED, ARCHIVED

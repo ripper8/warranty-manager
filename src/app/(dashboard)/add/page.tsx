@@ -36,7 +36,7 @@ export default function AddWarrantyPage() {
         purchaseDate: '',
         warrantyPeriod: '12',
         price: '',
-        currency: 'BGN',
+        currency: 'EUR',
         merchantName: ''
     })
 

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import Link from 'next/link'
-import { PlusCircle, Calendar, DollarSign, Search } from 'lucide-react'
+import { PlusCircle, Calendar, Euro, Search } from 'lucide-react'
 
 interface Warranty {
     id: string
@@ -220,7 +220,7 @@ export default function WarrantiesList({ warranties }: WarrantiesListProps) {
                                     )}
                                     {warranty.price && (
                                         <div className="flex items-center gap-2 text-sm">
-                                            <DollarSign className="h-4 w-4 text-muted-foreground" />
+                                            <Euro className="h-4 w-4 text-muted-foreground" />
                                             <span>{warranty.price.toString()} {warranty.currency}</span>
                                         </div>
                                     )}

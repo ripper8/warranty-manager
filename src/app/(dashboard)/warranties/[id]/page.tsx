@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { ArrowLeft, Calendar, DollarSign, FileText, Image as ImageIcon, Receipt, Edit } from 'lucide-react'
+import { ArrowLeft, Calendar, Euro, FileText, Image as ImageIcon, Receipt, Edit } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { DeleteWarrantyButton } from '@/components/delete-warranty-button'
 
@@ -140,7 +140,7 @@ export default async function WarrantyDetailsPage({ params }: WarrantyDetailsPag
                             <div className="space-y-1">
                                 <p className="text-sm text-muted-foreground">Price</p>
                                 <div className="flex items-center gap-2">
-                                    <DollarSign className="h-4 w-4 text-muted-foreground" />
+                                    <Euro className="h-4 w-4 text-muted-foreground" />
                                     <p className="font-medium">{warranty.price.toString()} {warranty.currency}</p>
                                 </div>
                             </div>
