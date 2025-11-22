@@ -26,14 +26,23 @@ pipeline {
     stage('Initialize') {
       steps {
         script {
-          def branch = env.BRANCH_NAME ?: sh(script: 'git rev-parse --abbrev-ref HEAD | cat', returnStdout: true).trim()
+          // Get branch from environment or git
+          def branch = env.BRANCH_NAME ?: env.GIT_BRANCH ?: sh(script: 'git rev-parse --abbrev-ref HEAD | cat', returnStdout: true).trim()
+          
+          // Clean branch name (remove origin/ prefix if present)
+          branch = branch.replaceAll('^origin/', '').replaceAll('^refs/heads/', '')
 
-          if (branch == 'HEAD') {
-            def inferred = sh(script: "git branch -r --contains HEAD | sed -n 's#origin/##p' | head -n1 | tr -d '\n' | cat", returnStdout: true).trim()
-            if (inferred) { branch = inferred }
+          // If still HEAD or empty, try to infer from git
+          if (branch == 'HEAD' || !branch) {
+            try {
+              def inferred = sh(script: "git branch -r --contains HEAD | sed -n 's#origin/##p' | head -n1 | tr -d '\n' | cat", returnStdout: true).trim()
+              if (inferred && inferred != 'HEAD') {
+                branch = inferred.replaceAll('^origin/', '')
+              }
+            } catch (Exception e) {
+              echo "⚠️ Could not infer branch: ${e.message}"
+            }
           }
-
-          env.BRANCH = branch
 
           // Validate/override branch
           def override = (params.BRANCH_OVERRIDE ?: '').trim()
@@ -44,12 +53,16 @@ pipeline {
               doGenerateSubmoduleConfigurations: false,
               extensions: [[$class: 'CleanBeforeCheckout']],
               submoduleCfg: [],
-              userRemoteConfigs: [[url: 'https://github.com/YOUR_USERNAME/warranty-manager.git', credentialsId: 'github-token']]
+              userRemoteConfigs: [[url: 'git@github.com:ripper8/warranty-manager.git', credentialsId: 'github-ssh-key']]
             ])
             branch = override
             env.BRANCH = branch
-          } else if (branch != 'development') {
-            error("Only development can be deployed when BRANCH_OVERRIDE is empty. Set BRANCH_OVERRIDE to deploy another branch.")
+          } else {
+            // Allow both master and development branches
+            if (branch != 'development' && branch != 'master' && branch != 'main') {
+              error("Only 'development', 'master', or 'main' branches can be deployed when BRANCH_OVERRIDE is empty. Current branch: '${branch}'. Set BRANCH_OVERRIDE to deploy another branch.")
+            }
+            env.BRANCH = branch
           }
 
           env.EFFECTIVE_ENV = 'prod'
@@ -65,7 +78,7 @@ pipeline {
     }
 
     stage('Validate Project Structure') {
-      when { expression { env.BRANCH == 'development' || (params.BRANCH_OVERRIDE?.trim()) } }
+      when { expression { (env.BRANCH == 'development' || env.BRANCH == 'master' || env.BRANCH == 'main') || (params.BRANCH_OVERRIDE?.trim()) } }
       steps {
         withEnv(["ENV=${env.EFFECTIVE_ENV}", "DOCKER_COMPOSE_FILE=${env.COMPOSE_FILE}"]) {
           dir("${env.PROJECT_DIR}") {
@@ -83,7 +96,7 @@ pipeline {
     }
 
     stage('Setup Environment') {
-      when { expression { env.BRANCH == 'development' || (params.BRANCH_OVERRIDE?.trim()) } }
+      when { expression { (env.BRANCH == 'development' || env.BRANCH == 'master' || env.BRANCH == 'main') || (params.BRANCH_OVERRIDE?.trim()) } }
       steps {
         withEnv(["ENV=${env.EFFECTIVE_ENV}", "DOCKER_COMPOSE_FILE=${env.COMPOSE_FILE}"]) {
           dir("${env.PROJECT_DIR}") {
@@ -101,7 +114,7 @@ pipeline {
     }
 
     stage('Initialize MinIO Bucket') {
-      when { expression { env.BRANCH == 'development' || (params.BRANCH_OVERRIDE?.trim()) } }
+      when { expression { (env.BRANCH == 'development' || env.BRANCH == 'master' || env.BRANCH == 'main') || (params.BRANCH_OVERRIDE?.trim()) } }
       steps {
         withEnv(["ENV=${env.EFFECTIVE_ENV}", "DOCKER_COMPOSE_FILE=${env.COMPOSE_FILE}"]) {
           dir("${env.PROJECT_DIR}") {
@@ -145,7 +158,7 @@ pipeline {
     }
 
     stage('Build Docker Images') {
-      when { expression { env.BRANCH == 'development' || (params.BRANCH_OVERRIDE?.trim()) } }
+      when { expression { (env.BRANCH == 'development' || env.BRANCH == 'master' || env.BRANCH == 'main') || (params.BRANCH_OVERRIDE?.trim()) } }
       steps {
         withEnv(["ENV=${env.EFFECTIVE_ENV}", "DOCKER_COMPOSE_FILE=${env.COMPOSE_FILE}"]) {
           dir("${env.PROJECT_DIR}") {
@@ -161,7 +174,7 @@ pipeline {
     }
 
     stage('Stop Existing Containers') {
-      when { expression { env.BRANCH == 'development' || (params.BRANCH_OVERRIDE?.trim()) } }
+      when { expression { (env.BRANCH == 'development' || env.BRANCH == 'master' || env.BRANCH == 'main') || (params.BRANCH_OVERRIDE?.trim()) } }
       steps {
         withEnv(["ENV=${env.EFFECTIVE_ENV}", "DOCKER_COMPOSE_FILE=${env.COMPOSE_FILE}"]) {
           dir("${env.PROJECT_DIR}") {
@@ -177,7 +190,7 @@ pipeline {
     }
 
     stage('Run Database Migrations') {
-      when { expression { env.BRANCH == 'development' || (params.BRANCH_OVERRIDE?.trim()) } }
+      when { expression { (env.BRANCH == 'development' || env.BRANCH == 'master' || env.BRANCH == 'main') || (params.BRANCH_OVERRIDE?.trim()) } }
       steps {
         withEnv(["ENV=${env.EFFECTIVE_ENV}", "DOCKER_COMPOSE_FILE=${env.COMPOSE_FILE}"]) {
           dir("${env.PROJECT_DIR}") {
@@ -218,7 +231,7 @@ pipeline {
     }
 
     stage('Deploy Application') {
-      when { expression { env.BRANCH == 'development' || (params.BRANCH_OVERRIDE?.trim()) } }
+      when { expression { (env.BRANCH == 'development' || env.BRANCH == 'master' || env.BRANCH == 'main') || (params.BRANCH_OVERRIDE?.trim()) } }
       steps {
         withEnv([
           "ENV=${env.EFFECTIVE_ENV}",
@@ -250,7 +263,7 @@ pipeline {
     }
 
     stage('Health Check') {
-      when { expression { env.BRANCH == 'development' || (params.BRANCH_OVERRIDE?.trim()) } }
+      when { expression { (env.BRANCH == 'development' || env.BRANCH == 'master' || env.BRANCH == 'main') || (params.BRANCH_OVERRIDE?.trim()) } }
       steps {
         withEnv([
           "ENV=${env.EFFECTIVE_ENV}",
@@ -281,7 +294,7 @@ pipeline {
     }
 
     stage('Verify Services') {
-      when { expression { env.BRANCH == 'development' || (params.BRANCH_OVERRIDE?.trim()) } }
+      when { expression { (env.BRANCH == 'development' || env.BRANCH == 'master' || env.BRANCH == 'main') || (params.BRANCH_OVERRIDE?.trim()) } }
       steps {
         withEnv(["ENV=${env.EFFECTIVE_ENV}", "DOCKER_COMPOSE_FILE=${env.COMPOSE_FILE}"]) {
           dir("${env.PROJECT_DIR}") {
