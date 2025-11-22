@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { ThemeToggle } from '@/components/theme-toggle'
 import {
     LayoutDashboard,
     PlusCircle,
@@ -85,7 +86,10 @@ export function MobileNav({ user, isGlobalAdmin, onSignOut }: MobileNavProps) {
                                 </Button>
                             </Link>
                         )}
-                        <div className="pt-2 border-t">
+                        <div className="pt-2 border-t space-y-2">
+                            <div className="flex justify-center">
+                                <ThemeToggle />
+                            </div>
                             <form action={onSignOut}>
                                 <Button variant="outline" className="w-full gap-2">
                                     <LogOut className="h-4 w-4" />

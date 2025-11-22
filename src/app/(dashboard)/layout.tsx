@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { MobileNav } from "@/components/mobile-nav"
+import { ThemeToggle } from "@/components/theme-toggle"
 import {
     LayoutDashboard,
     PlusCircle,
@@ -90,7 +91,10 @@ export default async function DashboardLayout({
                         </Link>
                     )}
                 </nav>
-                <div className="p-4 border-t">
+                <div className="p-4 border-t space-y-2">
+                    <div className="flex justify-center">
+                        <ThemeToggle />
+                    </div>
                     <form action={handleSignOut}>
                         <Button variant="outline" className="w-full gap-2">
                             <LogOut className="h-4 w-4" />
