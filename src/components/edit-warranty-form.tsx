@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { getFileUrl } from '@/lib/storage'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -210,14 +211,14 @@ export default function EditWarrantyForm({ warranty }: EditWarrantyFormProps) {
                                 {existingDocs.map((doc) => (
                                     <div key={doc.id} className="relative group">
                                         <a
-                                            href={doc.url}
+                                            href={getFileUrl(doc.url)}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="block"
                                         >
                                             <div className="relative aspect-[3/4] overflow-hidden rounded-lg border bg-muted">
                                                 <img
-                                                    src={doc.url}
+                                                    src={getFileUrl(doc.url)}
                                                     alt={getDocumentLabel(doc.type)}
                                                     className="object-cover w-full h-full"
                                                 />
