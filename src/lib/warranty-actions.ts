@@ -290,7 +290,7 @@ export async function updateWarranty(data: z.infer<typeof UpdateWarrantySchema>)
         })
 
         revalidatePath('/warranties')
-        revalidatePath(`/ warranties / ${id} `)
+        revalidatePath(`/warranties/${id}`)
         revalidatePath('/dashboard')
 
         return { success: true, warrantyId: warranty.id }
@@ -337,6 +337,7 @@ export async function deleteDocument(documentId: string) {
         await prisma.document.delete({ where: { id: documentId } });
 
         revalidatePath('/warranties');
+        revalidatePath(`/warranties/${document.warrantyItemId}`);
         return { success: true };
     } catch (error) {
         console.error('Delete document error:', error);
@@ -345,6 +346,7 @@ export async function deleteDocument(documentId: string) {
 }
 
 export async function addDocuments(warrantyId: string, documents: Array<{ type: DocumentType; url: string }>) {
+    console.log('Documents received by addDocuments:', documents);
     const session = await auth()
 
     if (!session?.user?.id) {
@@ -382,7 +384,7 @@ export async function addDocuments(warrantyId: string, documents: Array<{ type: 
         })
 
         revalidatePath('/warranties')
-        revalidatePath(`/ warranties / ${warrantyId} `)
+        revalidatePath(`/warranties/${warrantyId}`)
 
         return { success: true }
     } catch (error) {

@@ -10,7 +10,7 @@ const s3 = new S3Client({
     forcePathStyle: true, // MinIO‑compatible
 });
 
-/** Upload a buffer and return the public URL */
+/** Upload a buffer and return the object key */
 export async function uploadFile(
     key: string,
     buffer: Buffer,
@@ -24,9 +24,19 @@ export async function uploadFile(
             ContentType: mime,
         })
     );
-    // Build public URL (works for MinIO and real S3)
-    return `${process.env.S3_ENDPOINT?.replace(/\/+$/, '')}/${process.env.S3_BUCKET}/${key}`;
+    return key;
 }
+
+/** Get the public-facing URL for a file key */
+export function getFileUrl(key: string | null | undefined): string {
+    if (!key) {
+        // Return a placeholder or an empty string if no key is provided
+        return '/placeholder.svg'; // Or some other default image
+    }
+    const filename = key.split('/').pop();
+    return `/api/uploads/${filename}`;
+}
+
 
 /** Delete a file from the bucket */
 export async function deleteFile(key: string): Promise<void> {

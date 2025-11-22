@@ -1,4 +1,5 @@
 import { getWarrantyById } from '@/lib/warranty-actions'
+import { getFileUrl } from '@/lib/storage'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -8,11 +9,11 @@ import { notFound } from 'next/navigation'
 import { DeleteWarrantyButton } from '@/components/delete-warranty-button'
 
 interface WarrantyDetailsPageProps {
-    params: Promise<{ id: string }>
+    params: Promise<{ id: string }>;
 }
 
 export default async function WarrantyDetailsPage({ params }: WarrantyDetailsPageProps) {
-    const { id } = await params
+    const { id } = await params;
 
     let warranty
     try {
@@ -203,14 +204,14 @@ export default async function WarrantyDetailsPage({ params }: WarrantyDetailsPag
                                 {warrantyCards.map((doc) => (
                                     <a
                                         key={doc.id}
-                                        href={doc.url}
+                                        href={getFileUrl(doc.url)}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="block"
                                     >
                                         <div className="relative aspect-[3/4] overflow-hidden rounded-lg border bg-muted hover:bg-muted/80 transition-colors">
                                             <img
-                                                src={doc.url}
+                                                src={getFileUrl(doc.url)}
                                                 alt="Warranty Card"
                                                 className="object-cover w-full h-full"
                                             />
@@ -232,14 +233,14 @@ export default async function WarrantyDetailsPage({ params }: WarrantyDetailsPag
                                 {receipts.map((doc) => (
                                     <a
                                         key={doc.id}
-                                        href={doc.url}
+                                        href={getFileUrl(doc.url)}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="block"
                                     >
                                         <div className="relative aspect-[3/4] overflow-hidden rounded-lg border bg-muted hover:bg-muted/80 transition-colors">
                                             <img
-                                                src={doc.url}
+                                                src={getFileUrl(doc.url)}
                                                 alt="Receipt"
                                                 className="object-cover w-full h-full"
                                             />
@@ -261,14 +262,14 @@ export default async function WarrantyDetailsPage({ params }: WarrantyDetailsPag
                                 {photos.map((doc) => (
                                     <a
                                         key={doc.id}
-                                        href={doc.url}
+                                        href={getFileUrl(doc.url)}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="block"
                                     >
                                         <div className="relative aspect-[3/4] overflow-hidden rounded-lg border bg-muted hover:bg-muted/80 transition-colors">
                                             <img
-                                                src={doc.url}
+                                                src={getFileUrl(doc.url)}
                                                 alt="Product Photo"
                                                 className="object-cover w-full h-full"
                                             />

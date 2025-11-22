@@ -1,44 +1,59 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { readFile } from 'fs/promises'
-import { join } from 'path'
-import { auth } from '@/auth'
+import { NextRequest, NextResponse } from 'next/server';
+import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { Readable } from 'stream';
+
+const s3 = new S3Client({
+    endpoint: process.env.S3_ENDPOINT,
+    region: process.env.S3_REGION,
+    credentials: {
+        accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
+    },
+    forcePathStyle: true,
+});
+
+const BUCKET_NAME = process.env.S3_BUCKET || '';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { filename: string } }
+    context: { params: Promise<{ filename: string }> }
 ) {
-    const session = await auth()
+    const { filename } = await context.params;
 
-    if (!session?.user) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!filename) {
+        return NextResponse.json({ error: 'Filename is required' }, { status: 400 });
     }
 
     try {
-        const filename = params.filename
-        const filepath = join(process.cwd(), 'uploads', filename)
-        const fileBuffer = await readFile(filepath)
+        const command = new GetObjectCommand({
+            Bucket: BUCKET_NAME,
+            Key: `uploads/${filename}`,
+        });
 
-        // Determine content type based on extension
-        const ext = filename.split('.').pop()?.toLowerCase()
-        const contentTypes: Record<string, string> = {
-            'jpg': 'image/jpeg',
-            'jpeg': 'image/jpeg',
-            'png': 'image/png',
-            'gif': 'image/gif',
-            'pdf': 'application/pdf',
-            'webp': 'image/webp'
+        const { Body, ContentType } = await s3.send(command);
+
+        if (!Body) {
+            return NextResponse.json({ error: 'File not found' }, { status: 404 });
         }
 
-        const contentType = contentTypes[ext || ''] || 'application/octet-stream'
+        // In a Node.js environment, Body is a Readable stream
+        const readableStream = Body as Readable;
 
-        return new NextResponse(fileBuffer, {
+        // For Next.js Edge/Vercel, you might need to adapt this
+        // For Node.js runtime:
+        const response = new NextResponse(readableStream as any, {
             headers: {
-                'Content-Type': contentType,
-                'Cache-Control': 'public, max-age=31536000, immutable'
-            }
-        })
-    } catch (error) {
-        console.error('File read error:', error)
-        return NextResponse.json({ error: 'File not found' }, { status: 404 })
+                'Content-Type': ContentType || 'application/octet-stream',
+            },
+        });
+
+        return response;
+
+    } catch (error: any) {
+        if (error.name === 'NoSuchKey') {
+            return NextResponse.json({ error: 'File not found' }, { status: 404 });
+        }
+        console.error('Error fetching file from S3:', error);
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

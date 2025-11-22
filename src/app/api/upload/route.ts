@@ -12,7 +12,6 @@ export async function POST(request: NextRequest) {
     try {
         const formData = await request.formData();
         const files = formData.getAll('files') as File[];
-
         if (!files || files.length === 0) {
             return NextResponse.json({ error: 'No files uploaded' }, { status: 400 });
         }
@@ -29,19 +28,20 @@ export async function POST(request: NextRequest) {
             const bytes = await file.arrayBuffer();
             const buffer = Buffer.from(bytes);
 
-            // Unique key for MinIO
+            // Generate a unique key for MinIO
             const timestamp = Date.now();
             const randomString = Math.random().toString(36).substring(7);
             const extension = file.name.split('.').pop();
             const key = `uploads/${timestamp}-${randomString}.${extension}`;
 
-            // Upload to MinIO and obtain public URL
-            const url = await uploadFile(key, buffer, file.type);
+            // Upload to MinIO and get the key
+            const fileKey = await uploadFile(key, buffer, file.type);
+            console.log('fileKey from uploadFile:', fileKey);
 
             uploadedFiles.push({
-                filename: key.split('/').pop(),
+                filename: fileKey.split('/').pop(),
                 originalName: file.name,
-                path: url,
+                key: fileKey, // Return the key instead of the full path
                 size: file.size,
                 type: file.type,
             });
