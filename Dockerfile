@@ -3,8 +3,8 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Install OpenSSL for Prisma
-RUN apk add --no-cache openssl1.1-compat
+# Install OpenSSL for Prisma (Alpine 3.22 uses OpenSSL 3.0)
+RUN apk add --no-cache openssl libc6-compat
 
 # Copy package files
 COPY package*.json ./
@@ -30,7 +30,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 # Install curl for health checks and OpenSSL for Prisma
-RUN apk add --no-cache curl openssl1.1-compat
+RUN apk add --no-cache curl openssl libc6-compat
 
 # Create non-root user
 RUN addgroup --system --gid 1001 nodejs
