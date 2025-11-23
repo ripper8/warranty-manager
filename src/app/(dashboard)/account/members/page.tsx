@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { InviteUserDialog } from '@/components/invite-user-dialog'
 import { MemberActions } from '@/components/member-actions'
 import { useAccount } from '@/components/account-context'
-import { Loader2 } from 'lucide-react'
+import { Loader2, ShieldAlert } from 'lucide-react'
 
 interface Member {
     id: string
@@ -97,18 +97,29 @@ export default function AccountMembersPage() {
             <div className="space-y-6">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">Account Members</h2>
+                    <p className="text-muted-foreground">Manage users in your account</p>
                 </div>
                 <Card>
                     <CardContent className="pt-6">
-                        <div className="text-center space-y-2">
-                            <p className={isPermissionError ? "text-muted-foreground" : "text-destructive"}>
-                                {error || 'Failed to load members'}
-                            </p>
-                            {isPermissionError && (
+                        <div className="flex flex-col items-center justify-center space-y-4 py-8">
+                            <div className="rounded-full bg-muted p-4">
+                                <ShieldAlert className="h-8 w-8 text-muted-foreground" />
+                            </div>
+                            <div className="text-center space-y-2 max-w-md">
+                                <h3 className="text-lg font-semibold">
+                                    {isPermissionError ? 'Access Restricted' : 'Error Loading Members'}
+                                </h3>
                                 <p className="text-sm text-muted-foreground">
-                                    Only Account Admins can view and manage members.
+                                    {isPermissionError
+                                        ? 'You need to be an Account Admin or Global Admin to view and manage account members.'
+                                        : error || 'Failed to load members. Please try again later.'}
                                 </p>
-                            )}
+                                {isPermissionError && (
+                                    <p className="text-xs text-muted-foreground pt-2">
+                                        Contact your account administrator if you believe you should have access to this page.
+                                    </p>
+                                )}
+                            </div>
                         </div>
                     </CardContent>
                 </Card>

@@ -24,9 +24,8 @@ export default async function DashboardLayout({
 }) {
     const session = await auth()
 
-    // Check if user is Global Admin or Account Admin
+    // Check if user is Global Admin
     let isGlobalAdmin = false
-    let isAccountAdmin = false
     if (session?.user?.id) {
         const adminRole = await prisma.accountUser.findFirst({
             where: {
@@ -35,19 +34,6 @@ export default async function DashboardLayout({
             }
         })
         isGlobalAdmin = !!adminRole
-
-        // GLOBAL_ADMIN is also considered an account admin
-        if (isGlobalAdmin) {
-            isAccountAdmin = true
-        } else {
-            const accountAdminRole = await prisma.accountUser.findFirst({
-                where: {
-                    userId: session.user.id,
-                    role: 'ACCOUNT_ADMIN'
-                }
-            })
-            isAccountAdmin = !!accountAdminRole
-        }
     }
 
     // Fetch user accounts
@@ -80,7 +66,6 @@ export default async function DashboardLayout({
                 <MobileNav
                     user={session?.user}
                     isGlobalAdmin={isGlobalAdmin}
-                    isAccountAdmin={isAccountAdmin}
                     onSignOut={handleSignOut}
                 />
 
@@ -124,14 +109,12 @@ export default async function DashboardLayout({
                                 Settings
                             </Button>
                         </Link>
-                        {(isGlobalAdmin || isAccountAdmin) && (
-                            <Link href="/account/members">
-                                <Button variant="ghost" className="w-full justify-start gap-2">
-                                    <User className="h-4 w-4" />
-                                    Account Members
-                                </Button>
-                            </Link>
-                        )}
+                        <Link href="/account/members">
+                            <Button variant="ghost" className="w-full justify-start gap-2">
+                                <User className="h-4 w-4" />
+                                Account Members
+                            </Button>
+                        </Link>
                         {isGlobalAdmin && (
                             <Link href="/admin">
                                 <Button variant="ghost" className="w-full justify-start gap-2">

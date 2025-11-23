@@ -25,11 +25,10 @@ interface MobileNavProps {
         image?: string | null
     } | undefined
     isGlobalAdmin: boolean
-    isAccountAdmin: boolean
     onSignOut: () => Promise<void>
 }
 
-export function MobileNav({ user, isGlobalAdmin, isAccountAdmin, onSignOut }: MobileNavProps) {
+export function MobileNav({ user, isGlobalAdmin, onSignOut }: MobileNavProps) {
     const [isOpen, setIsOpen] = useState(false)
     const menuRef = useRef<HTMLDivElement>(null)
 
@@ -103,14 +102,12 @@ export function MobileNav({ user, isGlobalAdmin, isAccountAdmin, onSignOut }: Mo
                                 Settings
                             </Button>
                         </Link>
-                        {(isGlobalAdmin || isAccountAdmin) && (
-                            <Link href="/account/members" onClick={() => setIsOpen(false)}>
-                                <Button variant="ghost" className="w-full justify-start gap-2">
-                                    <User className="h-4 w-4" />
-                                    Account Members
-                                </Button>
-                            </Link>
-                        )}
+                        <Link href="/account/members" onClick={() => setIsOpen(false)}>
+                            <Button variant="ghost" className="w-full justify-start gap-2">
+                                <User className="h-4 w-4" />
+                                Account Members
+                            </Button>
+                        </Link>
                         {isGlobalAdmin && (
                             <Link href="/admin" onClick={() => setIsOpen(false)}>
                                 <Button variant="ghost" className="w-full justify-start gap-2">
