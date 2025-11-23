@@ -37,11 +37,23 @@ export function MobileNav({ user, isGlobalAdmin, onSignOut }: MobileNavProps) {
     // Close menu when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            const target = event.target as Node
+            const target = event.target as HTMLElement
+
             // If click is inside the mobile nav container – do nothing
             if (menuRef.current && menuRef.current.contains(target)) return
-            // If click is inside a Radix Select dropdown (rendered in a portal), ignore it
-            if ((target as HTMLElement).closest('[data-radix-select-content]')) return
+
+            // If click is inside any Radix Select element (rendered in a portal), ignore it
+            // This includes: trigger, content, viewport, item, etc.
+            if (
+                target.closest('[data-radix-select-trigger]') ||
+                target.closest('[data-radix-select-content]') ||
+                target.closest('[data-radix-select-viewport]') ||
+                target.closest('[data-radix-select-item]') ||
+                target.closest('[role="listbox"]')
+            ) {
+                return
+            }
+
             // Otherwise close the menu
             setIsOpen(false)
         }
@@ -98,6 +110,12 @@ export function MobileNav({ user, isGlobalAdmin, onSignOut }: MobileNavProps) {
                             <Button variant="ghost" className="w-full justify-start gap-2">
                                 <Building2 className="h-4 w-4" />
                                 My Accounts
+                            </Button>
+                        </Link>
+                        <Link href="/account/manage" onClick={() => setIsOpen(false)}>
+                            <Button variant="ghost" className="w-full justify-start gap-2">
+                                <Building2 className="h-4 w-4" />
+                                Manage Accounts
                             </Button>
                         </Link>
                         <Link href="/settings" onClick={() => setIsOpen(false)}>

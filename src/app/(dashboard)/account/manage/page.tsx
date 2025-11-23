@@ -2,21 +2,23 @@
 
 // No need for useState in this simplified page
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Loader2 } from 'lucide-react'
+
+import { useRouter } from 'next/navigation'
+import { CreateAccountForm } from '@/components/create-account-form'
+import { EditAccountDialog } from '@/components/edit-account-dialog'
+import { DeleteAccountDialog } from '@/components/delete-account-dialog'
 import { useAccount } from '@/components/account-context'
 
 export default function ManageAccountsPage() {
     const { accounts } = useAccount()
-
+    const router = useRouter()
+    const refresh = () => router.refresh()
     return (
         <div className="space-y-6 p-4">
             <h2 className="text-3xl font-bold tracking-tight">Manage Accounts</h2>
 
-            {/* TODO: replace with proper CreateAccountForm component */}
-            <Button onClick={() => alert('Create account flow not implemented')}>
-                Create Account
-            </Button>
+            {/* Create new account form */}
+            <CreateAccountForm onSuccess={refresh} />
 
             <div className="grid gap-4 md:grid-cols-2">
                 {accounts.map((acc) => (
@@ -27,9 +29,9 @@ export default function ManageAccountsPage() {
                         </CardHeader>
                         <div className="flex gap-2 mt-4">
                             {acc.role === 'ACCOUNT_ADMIN' && (
-                                <Button onClick={() => alert('Edit account not implemented')}>Edit</Button>
+                                <EditAccountDialog account={acc} onSuccess={refresh} />
                             )}
-                            <Button variant="destructive" onClick={() => alert('Delete account not implemented')}>Delete</Button>
+                            <DeleteAccountDialog accountId={acc.id} onSuccess={refresh} />
                         </div>
                     </Card>
                 ))}
