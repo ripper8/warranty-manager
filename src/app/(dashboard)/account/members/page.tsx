@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import {
     Card,
     CardContent,
@@ -37,10 +37,21 @@ export default function AccountMembersPage() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
-    const fetchMembers = async () => {
+    const fetchMembers = useCallback(async () => {
         // Не се опитваме да заредим данни, ако е избран “All Accounts”
         if (selectedAccountId === 'all') {
             setData(null)
+            setLoading(false)
+            return
+        }
+
+        // Client-side проверка: дали потребителят е admin на избрания акаунт
+        const selectedAccount = accounts.find(acc => acc.id === selectedAccountId)
+        const isAdmin = selectedAccount?.role === 'ACCOUNT_ADMIN' || selectedAccount?.role === 'GLOBAL_ADMIN'
+
+        if (!isAdmin) {
+            setData(null)
+            setError('You do not have permission to view members of this account')
             setLoading(false)
             return
         }
@@ -75,12 +86,12 @@ export default function AccountMembersPage() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [selectedAccountId, accounts])
 
     // При смяна на избрания акаунт – презареждаме
     useEffect(() => {
         fetchMembers()
-    }, [selectedAccountId])
+    }, [fetchMembers])
 
     // -------------------------------------------------
     // UI‑състояния

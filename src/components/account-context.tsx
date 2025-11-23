@@ -6,6 +6,8 @@ export interface Account {
     id: string
     name: string
     role?: string
+    ownerId?: string
+    sessionUserId?: string
 }
 
 interface AccountContextType {

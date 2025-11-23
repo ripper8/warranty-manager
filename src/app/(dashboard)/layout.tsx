@@ -52,8 +52,15 @@ export default async function DashboardLayout({
         .map(au => ({
             id: au.account.id,
             name: au.account.name,
-            role: au.role
+            role: au.role,
+            ownerId: au.account.ownerId,
+            sessionUserId: session?.user?.id
         }))
+
+    // Check if user is admin on any account
+    const isAccountAdmin = accountUsers.some(au =>
+        au.role === 'ACCOUNT_ADMIN' || au.role === 'GLOBAL_ADMIN'
+    )
 
     async function handleSignOut() {
         'use server';
@@ -66,6 +73,7 @@ export default async function DashboardLayout({
                 <MobileNav
                     user={session?.user}
                     isGlobalAdmin={isGlobalAdmin}
+                    isAccountAdmin={isAccountAdmin}
                     onSignOut={handleSignOut}
                 />
 
@@ -115,12 +123,14 @@ export default async function DashboardLayout({
                                 Settings
                             </Button>
                         </Link>
-                        <Link href="/account/members">
-                            <Button variant="ghost" className="w-full justify-start gap-2">
-                                <User className="h-4 w-4" />
-                                Account Members
-                            </Button>
-                        </Link>
+                        {(isAccountAdmin || isGlobalAdmin) && (
+                            <Link href="/account/members">
+                                <Button variant="ghost" className="w-full justify-start gap-2">
+                                    <User className="h-4 w-4" />
+                                    Account Members
+                                </Button>
+                            </Link>
+                        )}
                         {isGlobalAdmin && (
                             <Link href="/admin">
                                 <Button variant="ghost" className="w-full justify-start gap-2">
