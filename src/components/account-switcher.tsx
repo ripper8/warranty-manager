@@ -50,14 +50,14 @@ export function AccountSwitcher() {
                         <SelectValue placeholder="Select account" />
                     </div>
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="w-[var(--radix-select-trigger-width)]">
                     <SelectItem value="all">All Accounts</SelectItem>
                     {accounts.map((account) => (
-                        <SelectItem key={account.id} value={account.id}>
-                            <div className="flex flex-col items-start gap-1 w-full py-1">
-                                <span className="truncate w-full">{account.name}</span>
+                        <SelectItem key={account.id} value={account.id} className="pr-2">
+                            <div className="flex flex-col items-start gap-1 w-full min-w-0">
+                                <span className="truncate w-full text-sm">{account.name}</span>
                                 {account.role && (
-                                    <Badge variant={getRoleBadgeVariant(account.role)} className="text-[10px] px-1.5 py-0">
+                                    <Badge variant={getRoleBadgeVariant(account.role)} className="text-[10px] px-1.5 py-0.5 h-4">
                                         {getRoleLabel(account.role)}
                                     </Badge>
                                 )}

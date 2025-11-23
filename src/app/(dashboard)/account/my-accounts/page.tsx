@@ -11,10 +11,15 @@ export default async function MyAccountsPage() {
         return <div>Unauthorized</div>
     }
 
-    // Fetch user's accounts with additional info
+    // Fetch user's accounts with additional info (excluding System)
     const accountUsers = await prisma.accountUser.findMany({
         where: {
-            userId: session.user.id
+            userId: session.user.id,
+            account: {
+                name: {
+                    not: 'System'
+                }
+            }
         },
         include: {
             account: {

@@ -25,9 +25,15 @@ export async function getGlobalStats() {
             redirect('/dashboard')
         }
 
-        // Get global statistics
+        // Get global statistics (excluding System account)
         const totalUsers = await prisma.user.count()
-        const totalAccounts = await prisma.account.count()
+        const totalAccounts = await prisma.account.count({
+            where: {
+                name: {
+                    not: 'System'
+                }
+            }
+        })
         const totalWarranties = await prisma.warrantyItem.count()
 
         // Get recent activity (last 30 days)
@@ -116,9 +122,11 @@ export async function getAllUsers() {
             email: user.email,
             hasPassword: !!user.password,
             createdAt: user.createdAt,
-            accountsCount: user.accounts.length,
+            accountsCount: user.accounts.filter(a => a.account.name !== 'System').length,
             warrantiesCount: user.createdWarranties.length,
-            accounts: user.accounts.map(a => a.account.name)
+            accounts: user.accounts
+                .filter(a => a.account.name !== 'System')
+                .map(a => a.account.name)
         }))
     } catch (error) {
         // Re-throw redirect errors (NEXT_REDIRECT)
@@ -150,8 +158,13 @@ export async function getAllAccounts() {
             redirect('/dashboard')
         }
 
-        // Get all accounts with statistics
+        // Get all accounts with statistics (excluding System)
         const accounts = await prisma.account.findMany({
+            where: {
+                name: {
+                    not: 'System'
+                }
+            },
             include: {
                 users: {
                     include: {

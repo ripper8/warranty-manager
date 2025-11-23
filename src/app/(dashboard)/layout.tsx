@@ -60,11 +60,14 @@ export default async function DashboardLayout({
         }
     })
 
-    const accounts = accountUsers.map(au => ({
-        id: au.account.id,
-        name: au.account.name,
-        role: au.role
-    }))
+    // Filter out System account and map to simple structure
+    const accounts = accountUsers
+        .filter(au => au.account.name !== 'System')
+        .map(au => ({
+            id: au.account.id,
+            name: au.account.name,
+            role: au.role
+        }))
 
     async function handleSignOut() {
         'use server';
