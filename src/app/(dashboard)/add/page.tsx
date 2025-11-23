@@ -34,7 +34,7 @@ export default function AddWarrantyPage() {
         category: '',
         brand: '',
         model: '',
-        purchaseDate: '',
+        purchaseDate: new Date().toISOString().split('T')[0],
         warrantyPeriod: '12',
         price: '',
         currency: 'EUR',
