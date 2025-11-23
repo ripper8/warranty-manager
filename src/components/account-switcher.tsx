@@ -41,13 +41,19 @@ const getRoleBadgeVariant = (role?: string): "default" | "secondary" | "outline"
 export function AccountSwitcher() {
     const { accounts, selectedAccountId, setSelectedAccountId } = useAccount()
 
+    // Get selected account details
+    const selectedAccount = accounts.find(a => a.id === selectedAccountId)
+    const displayText = selectedAccountId === 'all'
+        ? 'All Accounts'
+        : selectedAccount?.name || 'Select account'
+
     return (
         <div className="mb-4 px-2">
             <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
                 <SelectTrigger className="w-full">
-                    <div className="flex items-center gap-2 truncate">
+                    <div className="flex items-center gap-2 w-full min-w-0">
                         <Building2 className="h-4 w-4 shrink-0 opacity-50" />
-                        <SelectValue placeholder="Select account" />
+                        <span className="truncate">{displayText}</span>
                     </div>
                 </SelectTrigger>
                 <SelectContent className="w-[var(--radix-select-trigger-width)]">

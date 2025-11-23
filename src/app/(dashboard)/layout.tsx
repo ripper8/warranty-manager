@@ -86,8 +86,11 @@ export default async function DashboardLayout({
 
                 <aside className="hidden md:flex w-64 bg-muted/40 border-r min-h-screen flex-col">
                     <div className="p-6 border-b">
-                        <h1 className="text-xl font-bold tracking-tight">Warranty Manager</h1>
-                        <p className="text-sm text-muted-foreground mt-1">{session?.user?.name}</p>
+                        <div className="flex items-center justify-between mb-2">
+                            <h1 className="text-xl font-bold tracking-tight">Warranty Manager</h1>
+                            <ThemeToggle />
+                        </div>
+                        <p className="text-sm text-muted-foreground">{session?.user?.name}</p>
                     </div>
                     <nav className="flex-1 p-4 space-y-2">
                         <AccountSwitcher />
@@ -138,10 +141,7 @@ export default async function DashboardLayout({
                             </Link>
                         )}
                     </nav>
-                    <div className="p-4 border-t space-y-2">
-                        <div className="flex justify-center">
-                            <ThemeToggle />
-                        </div>
+                    <div className="p-4 border-t">
                         <form action={handleSignOut}>
                             <Button variant="outline" className="w-full gap-2">
                                 <LogOut className="h-4 w-4" />

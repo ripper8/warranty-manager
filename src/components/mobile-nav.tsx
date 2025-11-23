@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
@@ -31,18 +31,39 @@ interface MobileNavProps {
 
 export function MobileNav({ user, isGlobalAdmin, isAccountAdmin, onSignOut }: MobileNavProps) {
     const [isOpen, setIsOpen] = useState(false)
+    const menuRef = useRef<HTMLDivElement>(null)
 
     const toggleMenu = () => setIsOpen(!isOpen)
 
+    // Close menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setIsOpen(false)
+            }
+        }
+
+        if (isOpen) {
+            document.addEventListener('mousedown', handleClickOutside)
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside)
+        }
+    }, [isOpen])
+
     return (
-        <div className="md:hidden border-b bg-background sticky top-0 z-50">
+        <div className="md:hidden border-b bg-background sticky top-0 z-50" ref={menuRef}>
             <div className="flex items-center justify-between p-4">
                 <div className="flex items-center gap-2">
                     <h1 className="text-lg font-bold tracking-tight">Warranty Manager</h1>
                 </div>
-                <Button variant="ghost" size="icon" onClick={toggleMenu}>
-                    {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                </Button>
+                <div className="flex items-center gap-2">
+                    <ThemeToggle />
+                    <Button variant="ghost" size="icon" onClick={toggleMenu}>
+                        {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                    </Button>
+                </div>
             </div>
 
             {isOpen && (
@@ -98,10 +119,7 @@ export function MobileNav({ user, isGlobalAdmin, isAccountAdmin, onSignOut }: Mo
                                 </Button>
                             </Link>
                         )}
-                        <div className="pt-2 border-t space-y-2">
-                            <div className="flex justify-center">
-                                <ThemeToggle />
-                            </div>
+                        <div className="pt-2 border-t">
                             <form action={onSignOut}>
                                 <Button variant="outline" className="w-full gap-2">
                                     <LogOut className="h-4 w-4" />
