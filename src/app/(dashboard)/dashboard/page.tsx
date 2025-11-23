@@ -1,8 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { format } from 'date-fns'
 import { Badge } from "@/components/ui/badge"
 import { getDashboardStats } from "@/lib/dashboard-actions"
 import Link from "next/link"
-import { FileText, AlertCircle, CheckCircle, XCircle, Calendar } from "lucide-react"
+import { FileText, AlertCircle, CheckCircle, XCircle, Calendar, Building2 } from "lucide-react"
 
 export default async function DashboardPage() {
     const stats = await getDashboardStats()
@@ -103,13 +104,18 @@ export default async function DashboardPage() {
                                                 )}
                                                 <span className="hidden xs:inline">•</span>
                                                 <span>{warranty.documentsCount} doc(s)</span>
+                                                <span className="hidden xs:inline">•</span>
+                                                <span className="flex items-center gap-1">
+                                                    <Building2 className="h-3 w-3" />
+                                                    {warranty.accountName}
+                                                </span>
                                             </div>
                                         </div>
                                         <div className="flex items-center justify-between md:justify-end gap-4 w-full md:w-auto">
                                             <div className="text-sm text-muted-foreground">
                                                 <div className="flex items-center gap-1">
                                                     <Calendar className="h-3 w-3" />
-                                                    {new Date(warranty.createdAt).toLocaleDateString()}
+                                                    {format(new Date(warranty.createdAt), 'dd/MM/yyyy')}
                                                 </div>
                                             </div>
                                             {getStatusBadge(warranty.expiryDate)}

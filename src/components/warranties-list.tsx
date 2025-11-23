@@ -1,13 +1,15 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { format } from 'date-fns'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import Link from 'next/link'
-import { PlusCircle, Calendar, Euro, Search } from 'lucide-react'
+import { PlusCircle, Calendar, Euro, Search, Building2 } from 'lucide-react'
+import { useAccount } from '@/components/account-context'
 
 interface Warranty {
     id: string
@@ -21,6 +23,10 @@ interface Warranty {
     currency: string
     merchantName: string | null
     documents: any[]
+    account: {
+        id: string
+        name: string
+    }
 }
 
 interface WarrantiesListProps {
@@ -31,6 +37,7 @@ export default function WarrantiesList({ warranties }: WarrantiesListProps) {
     const [searchQuery, setSearchQuery] = useState('')
     const [statusFilter, setStatusFilter] = useState<string>('all')
     const [categoryFilter, setCategoryFilter] = useState<string>('all')
+    const { selectedAccountId } = useAccount()
 
     const getStatus = (expiryDate: Date | null): 'active' | 'expiring' | 'expired' | 'no-expiry' => {
         if (!expiryDate) return 'no-expiry'
@@ -83,9 +90,12 @@ export default function WarrantiesList({ warranties }: WarrantiesListProps) {
             // Category filter
             const matchesCategory = categoryFilter === 'all' || warranty.category === categoryFilter
 
-            return matchesSearch && matchesStatus && matchesCategory
+            // Account filter
+            const matchesAccount = selectedAccountId === 'all' || warranty.account.id === selectedAccountId
+
+            return matchesSearch && matchesStatus && matchesCategory && matchesAccount
         })
-    }, [warranties, searchQuery, statusFilter, categoryFilter])
+    }, [warranties, searchQuery, statusFilter, categoryFilter, selectedAccountId])
 
     return (
         <div className="space-y-6">
@@ -209,13 +219,13 @@ export default function WarrantiesList({ warranties }: WarrantiesListProps) {
                                     {warranty.purchaseDate && (
                                         <div className="flex items-center gap-2 text-sm">
                                             <Calendar className="h-4 w-4 text-muted-foreground" />
-                                            <span>Purchased: {new Date(warranty.purchaseDate).toLocaleDateString()}</span>
+                                            <span>Purchased: {format(new Date(warranty.purchaseDate), 'dd/MM/yyyy')}</span>
                                         </div>
                                     )}
                                     {warranty.expiryDate && (
                                         <div className="flex items-center gap-2 text-sm">
                                             <Calendar className="h-4 w-4 text-muted-foreground" />
-                                            <span>Expires: {new Date(warranty.expiryDate).toLocaleDateString()}</span>
+                                            <span>Expires: {format(new Date(warranty.expiryDate), 'dd/MM/yyyy')}</span>
                                         </div>
                                     )}
                                     {warranty.price && (
@@ -229,8 +239,14 @@ export default function WarrantiesList({ warranties }: WarrantiesListProps) {
                                             <span className="text-muted-foreground">Merchant:</span> {warranty.merchantName}
                                         </div>
                                     )}
-                                    <div className="pt-2">
+                                    <div className="pt-2 flex items-center gap-2">
                                         <Badge variant="outline">{warranty.documents.length} document(s)</Badge>
+                                        {selectedAccountId === 'all' && (
+                                            <Badge variant="secondary" className="flex items-center gap-1">
+                                                <Building2 className="h-3 w-3" />
+                                                {warranty.account.name}
+                                            </Badge>
+                                        )}
                                     </div>
                                 </CardContent>
                             </Card>

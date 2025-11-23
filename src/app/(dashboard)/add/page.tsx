@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { createWarranty } from '@/lib/warranty-actions'
 import { Upload, X, FileText, Receipt, Camera } from 'lucide-react'
+import { useAccount } from '@/components/account-context'
 
 type DocumentType = 'RECEIPT' | 'WARRANTY_CARD' | 'PRODUCT_PHOTO'
 
@@ -37,8 +38,11 @@ export default function AddWarrantyPage() {
         warrantyPeriod: '12',
         price: '',
         currency: 'EUR',
-        merchantName: ''
+        merchantName: '',
+        accountId: ''
     })
+
+    const { selectedAccountId, accounts } = useAccount()
 
     const handleFileUpload = async (files: FileList | null, docType: DocumentType) => {
         if (!files || files.length === 0) return
@@ -96,6 +100,7 @@ export default function AddWarrantyPage() {
                 price: formData.price ? parseFloat(formData.price) : undefined,
                 currency: formData.currency,
                 merchantName: formData.merchantName || undefined,
+                accountId: selectedAccountId !== 'all' ? selectedAccountId : formData.accountId,
                 documents: uploadedFiles.map(f => ({
                     type: f.documentType,
                     url: f.key
@@ -269,6 +274,35 @@ export default function AddWarrantyPage() {
                         </div>
                     </CardContent>
                 </Card>
+
+                {/* Account Selection (if All Accounts selected) */}
+                {selectedAccountId === 'all' && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Account</CardTitle>
+                            <CardDescription>Select which account this warranty belongs to</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-2">
+                                <Label htmlFor="account">Account *</Label>
+                                <Select
+                                    value={formData.accountId}
+                                    onValueChange={(value) => setFormData({ ...formData, accountId: value })}
+                                    required
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select account" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {accounts.map(account => (
+                                            <SelectItem key={account.id} value={account.id}>{account.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* Warranty Details */}
                 <Card>

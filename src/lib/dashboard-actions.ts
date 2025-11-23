@@ -25,7 +25,12 @@ export async function getDashboardStats() {
                 accountId: { in: accountIds }
             },
             include: {
-                documents: true
+                documents: true,
+                account: {
+                    select: {
+                        name: true
+                    }
+                }
             }
         })
 
@@ -62,7 +67,8 @@ export async function getDashboardStats() {
                 category: w.category,
                 createdAt: w.createdAt,
                 expiryDate: w.expiryDate,
-                documentsCount: w.documents.length
+                documentsCount: w.documents.length,
+                accountName: w.account.name
             }))
 
         // Calculate category breakdown

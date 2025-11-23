@@ -17,6 +17,7 @@ const WarrantySchema = z.object({
     price: z.number().optional(),
     currency: z.string().default('EUR'),
     merchantName: z.string().optional(),
+    accountId: z.string().optional(),
     documents: z.array(z.object({
         type: z.enum(['RECEIPT', 'WARRANTY_CARD', 'PRODUCT_PHOTO']),
         url: z.string()
@@ -33,16 +34,35 @@ export async function createWarranty(data: z.infer<typeof WarrantySchema>) {
     try {
         const validated = WarrantySchema.parse(data)
 
-        // Get user's default account (first account they're admin of)
-        const userAccount = await prisma.accountUser.findFirst({
-            where: {
-                userId: session.user.id,
-                role: { in: ['GLOBAL_ADMIN', 'ACCOUNT_ADMIN', 'USER'] }
-            }
-        })
+        let accountId = validated.accountId
 
-        if (!userAccount) {
-            throw new Error('No account found for user')
+        if (accountId) {
+            // Verify user has access to this account
+            const access = await prisma.accountUser.findUnique({
+                where: {
+                    accountId_userId: {
+                        accountId,
+                        userId: session.user.id
+                    }
+                }
+            })
+
+            if (!access) {
+                throw new Error('Access denied to this account')
+            }
+        } else {
+            // Get user's default account (first account they're admin of)
+            const userAccount = await prisma.accountUser.findFirst({
+                where: {
+                    userId: session.user.id,
+                    role: { in: ['GLOBAL_ADMIN', 'ACCOUNT_ADMIN', 'USER'] }
+                }
+            })
+
+            if (!userAccount) {
+                throw new Error('No account found for user')
+            }
+            accountId = userAccount.accountId
         }
 
         // Calculate expiry date
@@ -55,7 +75,7 @@ export async function createWarranty(data: z.infer<typeof WarrantySchema>) {
 
         const warranty = await prisma.warrantyItem.create({
             data: {
-                accountId: userAccount.accountId,
+                accountId: accountId,
                 createdByUserId: session.user.id,
                 title: validated.title,
                 category: validated.category,
@@ -114,6 +134,12 @@ export async function getWarranties() {
                     select: {
                         name: true,
                         email: true
+                    }
+                },
+                account: {
+                    select: {
+                        id: true,
+                        name: true
                     }
                 }
             },

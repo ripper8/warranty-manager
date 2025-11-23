@@ -15,6 +15,7 @@ import {
     Menu,
     X
 } from 'lucide-react'
+import { AccountSwitcher } from '@/components/account-switcher'
 
 interface MobileNavProps {
     user: {
@@ -48,6 +49,7 @@ export function MobileNav({ user, isGlobalAdmin, onSignOut }: MobileNavProps) {
                         <div className="px-2 py-1.5 text-sm font-medium text-muted-foreground">
                             Signed in as {user?.name}
                         </div>
+                        <AccountSwitcher />
                         <Link href="/dashboard" onClick={() => setIsOpen(false)}>
                             <Button variant="ghost" className="w-full justify-start gap-2">
                                 <LayoutDashboard className="h-4 w-4" />
