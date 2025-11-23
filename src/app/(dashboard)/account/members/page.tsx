@@ -1,7 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { InviteUserDialog } from '@/components/invite-user-dialog'
 import { MemberActions } from '@/components/member-actions'
@@ -32,7 +38,7 @@ export default function AccountMembersPage() {
     const [error, setError] = useState<string | null>(null)
 
     const fetchMembers = async () => {
-        // Don't fetch if "all" is selected
+        // Не се опитваме да заредим данни, ако е избран “All Accounts”
         if (selectedAccountId === 'all') {
             setData(null)
             setLoading(false)
@@ -43,11 +49,22 @@ export default function AccountMembersPage() {
         setError(null)
 
         try {
-            const response = await fetch(`/api/account/members?accountId=${selectedAccountId}`)
+            const response = await fetch(
+                `/api/account/members?accountId=${selectedAccountId}`
+            )
 
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ error: 'Failed to fetch members' }))
-                throw new Error(errorData.error || 'Failed to fetch members')
+                const errorData = await response.json().catch(() => ({
+                    error: 'Failed to fetch members',
+                }))
+
+                // 403 – потребителят няма админ права
+                if (response.status === 403) {
+                    throw new Error(errorData.error ?? 'Access denied')
+                }
+
+                // Всички други HTTP‑грешки (500, 404, …)
+                throw new Error(errorData.error ?? 'Failed to fetch members')
             }
 
             const result = await response.json()
@@ -60,21 +77,30 @@ export default function AccountMembersPage() {
         }
     }
 
+    // При смяна на избрания акаунт – презареждаме
     useEffect(() => {
         fetchMembers()
     }, [selectedAccountId])
 
+    // -------------------------------------------------
+    // UI‑състояния
+    // -------------------------------------------------
     if (selectedAccountId === 'all') {
         return (
             <div className="space-y-6">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight">Account Members</h2>
-                    <p className="text-muted-foreground">Select a specific account to manage members</p>
+                    <h2 className="text-3xl font-bold tracking-tight">
+                        Account Members
+                    </h2>
+                    <p className="text-muted-foreground">
+                        Select a specific account to manage members
+                    </p>
                 </div>
                 <Card>
                     <CardContent className="pt-6">
                         <p className="text-center text-muted-foreground">
-                            Please select a specific account from the account switcher to view and manage members.
+                            Please select a specific account from the account switcher to
+                            view and manage members.
                         </p>
                     </CardContent>
                 </Card>
@@ -91,32 +117,40 @@ export default function AccountMembersPage() {
     }
 
     if (error || !data) {
-        const isPermissionError = error?.includes('permission') || error?.includes('admin')
+        const isPermissionError =
+            error?.includes('permission') || error?.includes('admin')
 
         return (
             <div className="space-y-6">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight">Account Members</h2>
+                    <h2 className="text-3xl font-bold tracking-tight">
+                        Account Members
+                    </h2>
                     <p className="text-muted-foreground">Manage users in your account</p>
                 </div>
+
                 <Card>
                     <CardContent className="pt-6">
                         <div className="flex flex-col items-center justify-center space-y-4 py-8">
                             <div className="rounded-full bg-muted p-4">
                                 <ShieldAlert className="h-8 w-8 text-muted-foreground" />
                             </div>
+
                             <div className="text-center space-y-2 max-w-md">
                                 <h3 className="text-lg font-semibold">
                                     {isPermissionError ? 'Access Restricted' : 'Error Loading Members'}
                                 </h3>
+
                                 <p className="text-sm text-muted-foreground">
                                     {isPermissionError
                                         ? 'You need to be an Account Admin or Global Admin to view and manage account members.'
                                         : error || 'Failed to load members. Please try again later.'}
                                 </p>
+
                                 {isPermissionError && (
                                     <p className="text-xs text-muted-foreground pt-2">
-                                        Contact your account administrator if you believe you should have access to this page.
+                                        Contact your account administrator if you believe you should have
+                                        access to this page.
                                     </p>
                                 )}
                             </div>
@@ -127,13 +161,19 @@ export default function AccountMembersPage() {
         )
     }
 
+    // -------------------------------------------------
+    // Основното съдържание – списък с членове
+    // -------------------------------------------------
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight">Account Members</h2>
+                    <h2 className="text-3xl font-bold tracking-tight">
+                        Account Members
+                    </h2>
                     <p className="text-muted-foreground">{data.accountName}</p>
                 </div>
+
                 <InviteUserDialog accountId={data.accountId} onSuccess={fetchMembers} />
             </div>
 
@@ -142,25 +182,34 @@ export default function AccountMembersPage() {
                     <CardTitle>Members ({data.members.length})</CardTitle>
                     <CardDescription>Manage users in your account</CardDescription>
                 </CardHeader>
+
                 <CardContent>
                     <div className="space-y-4">
                         {data.members.map((member) => (
-                            <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg">
+                            <div
+                                key={member.id}
+                                className="flex items-center justify-between p-4 border rounded-lg"
+                            >
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
                                         <p className="font-medium">{member.name || 'No name'}</p>
                                         {member.isOwner && (
                                             <Badge variant="default">Owner</Badge>
                                         )}
-                                        <Badge variant={member.role === 'ACCOUNT_ADMIN' ? 'default' : 'secondary'}>
+                                        <Badge
+                                            variant={member.role === 'ACCOUNT_ADMIN' ? 'default' : 'secondary'}
+                                        >
                                             {member.role === 'ACCOUNT_ADMIN' ? 'Admin' : 'User'}
                                         </Badge>
                                     </div>
+
                                     <p className="text-sm text-muted-foreground">{member.email}</p>
+
                                     <p className="text-xs text-muted-foreground">
                                         Joined {new Date(member.joinedAt).toLocaleDateString()}
                                     </p>
                                 </div>
+
                                 {!member.isOwner && (
                                     <MemberActions
                                         accountUserId={member.id}
