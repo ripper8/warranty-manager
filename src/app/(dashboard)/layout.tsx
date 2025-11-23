@@ -11,20 +11,22 @@ import {
     Settings,
     LogOut,
     Shield,
-    User
+    User,
+    Building2
 } from "lucide-react"
 import { AccountProvider } from "@/components/account-context"
 import { AccountSwitcher } from "@/components/account-switcher"
 
 export default async function DashboardLayout({
-                                                  children,
-                                              }: {
+    children,
+}: {
     children: React.ReactNode
 }) {
     const session = await auth()
 
-    // Check if user is Global Admin
+    // Check if user is Global Admin or Account Admin
     let isGlobalAdmin = false
+    let isAccountAdmin = false
     if (session?.user?.id) {
         const adminRole = await prisma.accountUser.findFirst({
             where: {
@@ -33,6 +35,16 @@ export default async function DashboardLayout({
             }
         })
         isGlobalAdmin = !!adminRole
+
+        if (!isGlobalAdmin) {
+            const accountAdminRole = await prisma.accountUser.findFirst({
+                where: {
+                    userId: session.user.id,
+                    role: 'ACCOUNT_ADMIN'
+                }
+            })
+            isAccountAdmin = !!accountAdminRole
+        }
     }
 
     // Fetch user accounts
@@ -47,7 +59,8 @@ export default async function DashboardLayout({
 
     const accounts = accountUsers.map(au => ({
         id: au.account.id,
-        name: au.account.name
+        name: au.account.name,
+        role: au.role
     }))
 
     async function handleSignOut() {
@@ -61,6 +74,7 @@ export default async function DashboardLayout({
                 <MobileNav
                     user={session?.user}
                     isGlobalAdmin={isGlobalAdmin}
+                    isAccountAdmin={isAccountAdmin}
                     onSignOut={handleSignOut}
                 />
 
@@ -89,18 +103,26 @@ export default async function DashboardLayout({
                                 My Warranties
                             </Button>
                         </Link>
+                        <Link href="/account/my-accounts">
+                            <Button variant="ghost" className="w-full justify-start gap-2">
+                                <Building2 className="h-4 w-4" />
+                                My Accounts
+                            </Button>
+                        </Link>
                         <Link href="/settings">
                             <Button variant="ghost" className="w-full justify-start gap-2">
                                 <Settings className="h-4 w-4" />
                                 Settings
                             </Button>
                         </Link>
-                        <Link href="/account/members">
-                            <Button variant="ghost" className="w-full justify-start gap-2">
-                                <User className="h-4 w-4" />
-                                Account Members
-                            </Button>
-                        </Link>
+                        {(isGlobalAdmin || isAccountAdmin) && (
+                            <Link href="/account/members">
+                                <Button variant="ghost" className="w-full justify-start gap-2">
+                                    <User className="h-4 w-4" />
+                                    Account Members
+                                </Button>
+                            </Link>
+                        )}
                         {isGlobalAdmin && (
                             <Link href="/admin">
                                 <Button variant="ghost" className="w-full justify-start gap-2">

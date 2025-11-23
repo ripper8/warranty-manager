@@ -5,6 +5,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react'
 export interface Account {
     id: string
     name: string
+    role?: string
 }
 
 interface AccountContextType {
@@ -17,9 +18,9 @@ interface AccountContextType {
 const AccountContext = createContext<AccountContextType | undefined>(undefined)
 
 export function AccountProvider({
-                                    children,
-                                    accounts
-                                }: {
+    children,
+    accounts
+}: {
     children: React.ReactNode
     accounts: Account[]
 }) {

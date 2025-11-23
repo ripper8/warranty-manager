@@ -20,9 +20,10 @@ import { useRouter } from 'next/navigation'
 
 interface InviteUserDialogProps {
     accountId: string
+    onSuccess?: () => void
 }
 
-export function InviteUserDialog({ accountId }: InviteUserDialogProps) {
+export function InviteUserDialog({ accountId, onSuccess }: InviteUserDialogProps) {
     const [open, setOpen] = useState(false)
     const [email, setEmail] = useState('')
     const [role, setRole] = useState<'USER' | 'ACCOUNT_ADMIN'>('USER')
@@ -44,6 +45,7 @@ export function InviteUserDialog({ accountId }: InviteUserDialogProps) {
                 setOpen(false)
                 setEmail('')
                 setRole('USER')
+                onSuccess?.()
                 router.refresh()
             } else {
                 setError(result.error || 'Failed to invite user')

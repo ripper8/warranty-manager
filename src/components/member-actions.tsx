@@ -28,9 +28,10 @@ interface MemberActionsProps {
     accountUserId: string
     currentRole: string
     userName: string
+    onSuccess?: () => void
 }
 
-export function MemberActions({ accountUserId, currentRole, userName }: MemberActionsProps) {
+export function MemberActions({ accountUserId, currentRole, userName, onSuccess }: MemberActionsProps) {
     const [isPending, startTransition] = useTransition()
     const [showRemoveDialog, setShowRemoveDialog] = useState(false)
     const router = useRouter()
@@ -41,6 +42,7 @@ export function MemberActions({ accountUserId, currentRole, userName }: MemberAc
                 accountUserId,
                 newRole
             })
+            onSuccess?.()
             router.refresh()
         })
     }
@@ -49,6 +51,7 @@ export function MemberActions({ accountUserId, currentRole, userName }: MemberAc
         startTransition(async () => {
             await removeUserFromAccount(accountUserId)
             setShowRemoveDialog(false)
+            onSuccess?.()
             router.refresh()
         })
     }

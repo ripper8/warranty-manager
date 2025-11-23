@@ -13,7 +13,8 @@ import {
     Shield,
     User,
     Menu,
-    X
+    X,
+    Building2
 } from 'lucide-react'
 import { AccountSwitcher } from '@/components/account-switcher'
 
@@ -24,10 +25,11 @@ interface MobileNavProps {
         image?: string | null
     } | undefined
     isGlobalAdmin: boolean
+    isAccountAdmin: boolean
     onSignOut: () => Promise<void>
 }
 
-export function MobileNav({ user, isGlobalAdmin, onSignOut }: MobileNavProps) {
+export function MobileNav({ user, isGlobalAdmin, isAccountAdmin, onSignOut }: MobileNavProps) {
     const [isOpen, setIsOpen] = useState(false)
 
     const toggleMenu = () => setIsOpen(!isOpen)
@@ -68,18 +70,26 @@ export function MobileNav({ user, isGlobalAdmin, onSignOut }: MobileNavProps) {
                                 My Warranties
                             </Button>
                         </Link>
+                        <Link href="/account/my-accounts" onClick={() => setIsOpen(false)}>
+                            <Button variant="ghost" className="w-full justify-start gap-2">
+                                <Building2 className="h-4 w-4" />
+                                My Accounts
+                            </Button>
+                        </Link>
                         <Link href="/settings" onClick={() => setIsOpen(false)}>
                             <Button variant="ghost" className="w-full justify-start gap-2">
                                 <Settings className="h-4 w-4" />
                                 Settings
                             </Button>
                         </Link>
-                        <Link href="/account/members" onClick={() => setIsOpen(false)}>
-                            <Button variant="ghost" className="w-full justify-start gap-2">
-                                <User className="h-4 w-4" />
-                                Account Members
-                            </Button>
-                        </Link>
+                        {(isGlobalAdmin || isAccountAdmin) && (
+                            <Link href="/account/members" onClick={() => setIsOpen(false)}>
+                                <Button variant="ghost" className="w-full justify-start gap-2">
+                                    <User className="h-4 w-4" />
+                                    Account Members
+                                </Button>
+                            </Link>
+                        )}
                         {isGlobalAdmin && (
                             <Link href="/admin" onClick={() => setIsOpen(false)}>
                                 <Button variant="ghost" className="w-full justify-start gap-2">

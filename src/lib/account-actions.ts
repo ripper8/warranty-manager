@@ -190,7 +190,7 @@ export async function removeUserFromAccount(accountUserId: string) {
     }
 }
 
-export async function getAccountMembers() {
+export async function getAccountMembers(accountId?: string) {
     const session = await auth()
 
     if (!session?.user?.id) {
@@ -198,22 +198,42 @@ export async function getAccountMembers() {
     }
 
     try {
-        // Get user's first account where they are admin
-        const userAccount = await prisma.accountUser.findFirst({
+        let targetAccountId = accountId
+
+        // If no accountId provided, get user's first account where they are admin
+        if (!targetAccountId) {
+            const userAccount = await prisma.accountUser.findFirst({
+                where: {
+                    userId: session.user.id,
+                    role: { in: ['ACCOUNT_ADMIN', 'GLOBAL_ADMIN'] }
+                }
+            })
+
+            if (!userAccount) {
+                throw new Error('No account found')
+            }
+            targetAccountId = userAccount.accountId
+        }
+
+        // Verify user has admin access to this account
+        const hasAccess = await prisma.accountUser.findFirst({
             where: {
                 userId: session.user.id,
-                role: { in: ['ACCOUNT_ADMIN', 'GLOBAL_ADMIN'] }
+                OR: [
+                    { accountId: targetAccountId, role: 'ACCOUNT_ADMIN' },
+                    { role: 'GLOBAL_ADMIN' }
+                ]
             }
         })
 
-        if (!userAccount) {
-            throw new Error('No account found')
+        if (!hasAccess) {
+            throw new Error('Unauthorized to view this account')
         }
 
         // Get all members of this account
         const members = await prisma.accountUser.findMany({
             where: {
-                accountId: userAccount.accountId
+                accountId: targetAccountId
             },
             include: {
                 user: {
@@ -239,7 +259,7 @@ export async function getAccountMembers() {
         })
 
         return {
-            accountId: userAccount.accountId,
+            accountId: targetAccountId,
             accountName: members[0]?.account.name || '',
             ownerId: members[0]?.account.ownerId || '',
             members: members.map(m => ({
