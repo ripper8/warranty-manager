@@ -37,9 +37,13 @@ export function MobileNav({ user, isGlobalAdmin, onSignOut }: MobileNavProps) {
     // Close menu when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-                setIsOpen(false)
-            }
+            const target = event.target as Node
+            // If click is inside the mobile nav container – do nothing
+            if (menuRef.current && menuRef.current.contains(target)) return
+            // If click is inside a Radix Select dropdown (rendered in a portal), ignore it
+            if ((target as HTMLElement).closest('[data-radix-select-content]')) return
+            // Otherwise close the menu
+            setIsOpen(false)
         }
 
         if (isOpen) {
