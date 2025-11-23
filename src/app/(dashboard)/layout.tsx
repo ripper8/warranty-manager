@@ -103,6 +103,12 @@ export default async function DashboardLayout({
                                 My Accounts
                             </Button>
                         </Link>
+                        <Link href="/account/create">
+                            <Button variant="ghost" className="w-full justify-start gap-2">
+                                <Building2 className="h-4 w-4" />
+                                Create Account
+                            </Button>
+                        </Link>
                         <Link href="/settings">
                             <Button variant="ghost" className="w-full justify-start gap-2">
                                 <Settings className="h-4 w-4" />
