@@ -36,7 +36,10 @@ export default async function DashboardLayout({
         })
         isGlobalAdmin = !!adminRole
 
-        if (!isGlobalAdmin) {
+        // GLOBAL_ADMIN is also considered an account admin
+        if (isGlobalAdmin) {
+            isAccountAdmin = true
+        } else {
             const accountAdminRole = await prisma.accountUser.findFirst({
                 where: {
                     userId: session.user.id,

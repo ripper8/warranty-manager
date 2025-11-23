@@ -54,10 +54,10 @@ export function AccountSwitcher() {
                     <SelectItem value="all">All Accounts</SelectItem>
                     {accounts.map((account) => (
                         <SelectItem key={account.id} value={account.id}>
-                            <div className="flex items-center justify-between gap-2 w-full">
-                                <span className="truncate">{account.name}</span>
+                            <div className="flex flex-col items-start gap-1 w-full py-1">
+                                <span className="truncate w-full">{account.name}</span>
                                 {account.role && (
-                                    <Badge variant={getRoleBadgeVariant(account.role)} className="text-xs shrink-0">
+                                    <Badge variant={getRoleBadgeVariant(account.role)} className="text-[10px] px-1.5 py-0">
                                         {getRoleLabel(account.role)}
                                     </Badge>
                                 )}

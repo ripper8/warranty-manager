@@ -44,9 +44,12 @@ export default function AccountMembersPage() {
 
         try {
             const response = await fetch(`/api/account/members?accountId=${selectedAccountId}`)
+
             if (!response.ok) {
-                throw new Error('Failed to fetch members')
+                const errorData = await response.json().catch(() => ({ error: 'Failed to fetch members' }))
+                throw new Error(errorData.error || 'Failed to fetch members')
             }
+
             const result = await response.json()
             setData(result)
         } catch (err) {
@@ -88,6 +91,8 @@ export default function AccountMembersPage() {
     }
 
     if (error || !data) {
+        const isPermissionError = error?.includes('permission') || error?.includes('admin')
+
         return (
             <div className="space-y-6">
                 <div>
@@ -95,9 +100,16 @@ export default function AccountMembersPage() {
                 </div>
                 <Card>
                     <CardContent className="pt-6">
-                        <p className="text-center text-destructive">
-                            {error || 'Failed to load members'}
-                        </p>
+                        <div className="text-center space-y-2">
+                            <p className={isPermissionError ? "text-muted-foreground" : "text-destructive"}>
+                                {error || 'Failed to load members'}
+                            </p>
+                            {isPermissionError && (
+                                <p className="text-sm text-muted-foreground">
+                                    Only Account Admins can view and manage members.
+                                </p>
+                            )}
+                        </div>
                     </CardContent>
                 </Card>
             </div>
