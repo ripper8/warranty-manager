@@ -143,7 +143,7 @@ export default function AccountMembersPage() {
 
                                 <p className="text-sm text-muted-foreground">
                                     {isPermissionError
-                                        ? 'You need to be an Account Admin or Global Admin to view and manage account members.'
+                                        ? 'You need to be an Admin to view and manage account members.'
                                         : error || 'Failed to load members. Please try again later.'}
                                 </p>
 
