@@ -10,7 +10,7 @@ A simple app to keep track of warranties, receipts, and product documentation. B
 - Role-based access (global admin, account admin, regular users)
 
 ## Tech Stack
-
+ 
 - **Next.js 16** with App Router
 - **NextAuth v5** for authentication
 - **Prisma** + **PostgreSQL** for the database
