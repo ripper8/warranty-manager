@@ -143,18 +143,3 @@ prisma/
 ├── schema.prisma     # Database schema
 └── migrations/       # Database migrations
 ```
-
-## Deployment
-
-There's a `Jenkinsfile` and Docker setup for production deployment. The app is designed to run behind nginx as a reverse proxy.
-
-## Notes
-
-- The app uses NextAuth with credentials provider (email/password)
-- File uploads are configured for AWS S3 (check the AWS SDK dependency)
-- Multi-tenant architecture means each account has isolated warranty data
-- The `ownerId` field in the Account table tracks who created each account
-
-## License
-
-This is a personal project, use it however you want.
