@@ -1,49 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Warranty Manager
+
+A simple app to keep track of warranties, receipts, and product documentation. Built this because I kept losing track of when warranties expire and couldn't find receipts when I needed them.
+
+## What it does
+
+- Store warranty info for your purchases (dates, periods, etc.)
+- Upload and organize receipts and product photos
+- Multi-tenant setup - different accounts can manage their own warranties
+- Role-based access (global admin, account admin, regular users)
+
+## Tech Stack
+
+- **Next.js 16** with App Router
+- **NextAuth v5** for authentication
+- **Prisma** + **PostgreSQL** for the database
+- **Tailwind CSS** for styling
+- **Docker** for local development
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+Make sure you have Docker installed. That's pretty much it.
+
+### Setup
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Start the PostgreSQL database:
+
+```bash
+docker-compose up -d
+```
+
+3. Set up your `.env` file (copy from `.env.example` if you have one, or check the `.env` file)
+
+4. Run database migrations:
+
+```bash
+npx prisma migrate dev
+```
+
+5. Start the dev server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) and you should be good to go.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Database Management
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Prisma Studio
 
-## Learn More
+Want to browse the database visually? Run:
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-
+```bash
 npx prisma studio
+```
 
-# Влез в PostgreSQL конзолата
+### Direct PostgreSQL Access
+
+If you need to run SQL directly:
+
+```bash
 docker exec -it warranty_postgres psql -U postgres -d warranty_db
+```
 
-# скрипт за GLOBAL_ADMIN
+### Creating a Global Admin
+
+After you create your first user account, you'll need to promote yourself to GLOBAL_ADMIN. Here's the SQL script I use (replace the email with yours):
+
+```sql
 WITH user_info AS (
-    SELECT id as user_id FROM "User" WHERE email = 'dimitrov.atanas@yahoo.com'
+    SELECT id as user_id FROM "User" WHERE email = 'your-email@example.com'
 ),
 system_account AS (
     INSERT INTO "Account" (id, name, "ownerId", "createdAt", "updatedAt")
@@ -77,10 +111,13 @@ WHERE NOT EXISTS (
       AND role = 'GLOBAL_ADMIN'
 )
 RETURNING id;
+```
 
+### Verify Your Admin Role
 
-# скрипт за валидация
+Check if it worked:
 
+```sql
 SELECT 
     u.email,
     u.name,
@@ -89,5 +126,35 @@ SELECT
 FROM "User" u
 JOIN "AccountUser" au ON u.id = au."userId"
 JOIN "Account" a ON au."accountId" = a.id
-WHERE u.email = 'dimitrov.atanas@yahoo.com'
+WHERE u.email = 'your-email@example.com'
   AND au.role = 'GLOBAL_ADMIN';
+```
+
+## Project Structure
+
+```
+src/
+├── app/              # Next.js app router pages
+├── components/       # React components
+├── lib/              # Utilities and helpers
+└── middleware.ts     # Auth middleware
+
+prisma/
+├── schema.prisma     # Database schema
+└── migrations/       # Database migrations
+```
+
+## Deployment
+
+There's a `Jenkinsfile` and Docker setup for production deployment. The app is designed to run behind nginx as a reverse proxy.
+
+## Notes
+
+- The app uses NextAuth with credentials provider (email/password)
+- File uploads are configured for AWS S3 (check the AWS SDK dependency)
+- Multi-tenant architecture means each account has isolated warranty data
+- The `ownerId` field in the Account table tracks who created each account
+
+## License
+
+This is a personal project, use it however you want.
